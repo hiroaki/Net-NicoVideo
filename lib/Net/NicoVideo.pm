@@ -137,7 +137,32 @@ Net::NicoVideo - Perl library wrapping API of "nicovideo"
 
 =head1 SYNOPSIS
 
+    use 5.12.0;
+    use warnings;
     use Net::NicoVideo;
+    
+    my $video_id = $ARGV[0] or die;
+    
+    my $nnv = Net::NicoVideo->new({
+        username => 'your-nicovideo@email.address',
+        password => 'and-password',
+        });
+    
+    my $info = $nnv->get_thumbinfo( $video_id );
+    my $flv  = $nnv->get_flv( $video_id );
+    
+    
+    say "downloading: ". $info->title;
+    if( $flv->is_economy ){
+        say "now economy time, skip";
+    }else{
+        my $path = sprintf '%s/Movies/%s.%s',
+                    $ENV{HOME}, $video_id, $info->movie_type;
+    
+        $nnv->watch_page( $video_id );
+        sleep 2;
+        $nnv->mirror_video( $flv->url, $path );
+    }
 
 =head1 DESCRIPTION
 
