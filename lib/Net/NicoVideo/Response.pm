@@ -3,10 +3,9 @@ package Net::NicoVideo::Response;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_01';
+$VERSION = '0.01_02';
 
 use vars qw($AUTOLOAD);
-$AUTOLOAD;
 
 sub AUTOLOAD {
     my $self = shift;
