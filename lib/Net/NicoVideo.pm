@@ -3,137 +3,78 @@ package Net::NicoVideo;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_02';
+$VERSION = '0.01_03';
 
 use base qw(Class::Accessor::Fast);
 use Carp qw(croak);
-use HTTP::Cookies;
-use HTTP::Request::Common;
-use Net::NicoVideo::Response::Flv;
-use Net::NicoVideo::Response::ThumbInfo;
+use Net::NicoVideo::UserAgent;
 use LWP::UserAgent;
 
-use vars qw($AgentName $DelayDefault);
-$AgentName = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_6_8) AppleWebKit/534.50 (KHTML, like Gecko) Version/5.1 Safari/534.50';
-$DelayDefault = 3;
+use vars qw($DelayDefault);
+$DelayDefault = 1;
 
 __PACKAGE__->mk_accessors(qw(
 user_agent
-username
+email
 password
 delay
 ));
 
-sub is_logged_in {
-    my ($self, $res) = @_;
-    $res->headers->header('x-niconico-authflag');
-}
-
-sub ua {
+sub get_user_agent {
     my $self = shift;
-    unless( $self->user_agent ){
-        $self->user_agent(
-            LWP::UserAgent->new(
-                agent => $AgentName,
-                ));
-    }
-    return $self->user_agent;
-}
-
-sub login_ua {
-    my $self = shift;
-    my $ua = $self->ua;
-
-    my $res = $ua->request(POST 'https://secure.nicovideo.jp/secure/login?site=niconico', [
-        next_url => '',
-        mail => $self->{username},
-        password => $self->{password},
-        ]);
     
-    my $cookie_jar = HTTP::Cookies->new;
-    $cookie_jar->extract_cookies($res);
-    $ua->cookie_jar($cookie_jar);
+    $self->user_agent(LWP::UserAgent->new)
+        unless( $self->user_agent );
 
-    return $self->user_agent($ua);
+    Net::NicoVideo::UserAgent->new($self->user_agent);
+}
+
+sub get_email {
+    my $self = shift;
+    return defined $self->email ? $self->email : $ENV{NET_NICOVIDEO_EMAIL};
+}
+
+sub get_password {
+    my $self = shift;
+    return defined $self->password ? $self->password : $ENV{NET_NICOVIDEO_PASSWORD};
 }
 
 sub fetch_thumbinfo {
-    my $self = shift;
-    my $video_id = shift or croak "missing mandatory parameter 'video_id'";
-    my $url = sprintf 'http://ext.nicovideo.jp/api/getthumbinfo/%s', $video_id;
-    Net::NicoVideo::Response::ThumbInfo->new( $self->ua->request(GET $url) );
+    my ($self, $video_id) = @_;
+    $self->get_user_agent->request_thumbinfo($video_id)->parsed_content;
 }
 
 sub fetch_flv {
-    my $self = shift;
-    my $video_id = shift or croak "missing mandatory parameter 'video_id'";
-    my $url = 'http://flapi.nicovideo.jp/api/getflv/'.$video_id;
-
-    my $params = [];
-    if( $video_id =~ /^nm/ ){
-        push @$params, ('as3' => 1);
-    }
-    
-    my $res = $self->ua->request(POST $url, $params);
-    unless( $self->is_logged_in( $res ) ){
-        $res = $self->login_ua->request(POST $url, $params );
-    }
-    Net::NicoVideo::Response::Flv->new( $res );
+    my ($self, $video_id) = @_;
+    $self->get_user_agent->request_flv($video_id, $self->get_email, $self->get_password)->parsed_content;
 }
 
-sub watch_page {
-    my $self = shift;
-    my $video_id = shift or croak "missing mandatory parameter 'video_id'";
-    my $url = sprintf 'http://www.nicovideo.jp/watch/%s', $video_id;
-
-    my $res = $self->ua->request(GET $url);
-    unless( $self->is_logged_in( $res ) ){
-        $res = $self->login_ua->request(GET $url);
-    }
-    Net::NicoVideo::Response->new( $res );
+sub watch_video {
+    my ($self, $video_id) = @_;
+    $self->get_user_agent->request_watching($video_id, $self->get_email, $self->get_password);
 }
 
-sub mirror_video {
-    my $self = shift;
-    my $video_url = shift or croak "missing mandatory parameter 'video_url'";
-    my $save_path = shift or croak "missing mandatory parameter 'save_path'";
-    $self->ua->mirror( $video_url, $save_path );
+sub fetch_video {
+    my ($self, $flv, @args) = @_;
+    $self->get_user_agent->request_get($flv->url, @args);
 }
 
-sub get_thumbinfo {
-    my $self = shift;
-    my $video_id = shift or croak "missing mandatory parameter 'video_id'";
-    my $res = $self->fetch_thumbinfo($video_id);
-
-    die "response is not success: @{[ $res->status_line ]}\n"
-        unless( $res->is_success );
-    
-    die "content is invalid: @{[ $res->content ]}\n"
-        unless( $res->is_content_success );
-
-    return $res->parsed_content; # Net::NicoVideo::ThumbInfo
-}
-
-sub get_flv {
-    my $self = shift;
-    my $video_id = shift or croak "missing mandatory parameter 'video_id'";
-    my $res = $self->fetch_flv($video_id);
-    
-    die "response is not success: @{[ $res->status_line ]}\n"
-        unless( $res->is_success );
-    
-    die "content is invalid: @{[ $res->content ]}\n"
-        unless( $res->is_content_success );
-
-    return $res->parsed_content; # Net::NicoVideo::Flv
+sub download {
+    my ($self, $video_id, @args) = @_;
+    $self->get_user_agent->request_watching($video_id);
+    sleep (defined $self->delay ? $self->delay : $DelayDefault);
+    $self->fetch_video($self->fetch_flv($video_id), @args);
 }
 
 1;
 __END__
 
+
+=pod
+
 =head1 NAME
 
-Net::NicoVideo - Perl library wrapping API of "nicovideo"
+Net::NicoVideo - Wrapping API of Nico Nico Douga
 
 =head1 SYNOPSIS
 
@@ -148,38 +89,53 @@ Net::NicoVideo - Perl library wrapping API of "nicovideo"
         password => 'and-password',
         });
     
-    my $info = $nnv->get_thumbinfo( $video_id );
-    my $flv  = $nnv->get_flv( $video_id );
+    my $info = $nnv->fetch_thumbinfo( $video_id );
+    my $flv  = $nnv->fetch_flv( $video_id );
     
     
     say "downloading: ". $info->title;
     if( $flv->is_economy ){
         say "now economy time, skip";
     }else{
-        my $path = sprintf '%s/Movies/%s.%s',
-                    $ENV{HOME}, $video_id, $info->movie_type;
+        my $save_path = sprintf '%s/Movies/%s.%s',
+            $ENV{HOME}, $video_id, $info->movie_type;
     
-        $nnv->watch_page( $video_id );
-        sleep 2;
-        $nnv->mirror_video( $flv->url, $path );
+        $nnv->watch_video( $video_id );
+        $nnv->fetch_video( $flv, $save_path );
     }
 
 =head1 DESCRIPTION
 
-Net::NicoVideo is wrapping web API of "nicovideo".
+This provides methods that accessing API of Nico Nico Douga
+via each object Net::NicoVideo::ThumbInfo and Net::NicoVideo::Flv.
+Please see these classes for detail.
 
-This provides accessing methods for each object "thumbinfo" and "flv".
+=head1 ENVIRONMENT VARIABLE
 
-=head1 AUTHOR
+    NET_NICOVIDEO_EMAIL
+    NET_NICOVIDEO_PASSWORD
 
-Author E<lt>hwat@mac.comE<gt>
+These obvious environment variables are effective. 
+If the object has each value as its members, priority is given to them.
 
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
+=head2 FOR BUSY PERSON
+
+You can download video by one liner:
+
+    $ export NET_NICOVIDEO_EMAIL=your-nicovideo@email.address
+    $ export NET_NICOVIDEO_PASSWORD=and-password
+    $ perl -MNet::NicoVideo -e 'Net::NicoVideo->new->download("smNNNNNN", "./smile.mp4")'
 
 =head1 SEE ALSO
 
 L<Net::NicoVideo::Flv>
 L<Net::NicoVideo::ThumbInfo>
+
+=head1 AUTHOR
+
+WATANABE Hiroaki E<lt>hwat@mac.comE<gt>
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
 
 =cut

@@ -8,7 +8,6 @@ WriteMakefile(
     LWP::UserAgent => 0,
     HTTP::Cookies => 0,
     HTTP::Request::Common => 0,
-    HTTP::Request => 0,
     Test::More => 0.32,
     XML::TreePP => 0,
     },

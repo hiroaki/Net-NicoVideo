@@ -3,48 +3,57 @@ package Net::NicoVideo::Response;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_02';
+$VERSION = '0.01_03';
 
-use vars qw($AUTOLOAD);
+use base qw/Net::NicoVideo::Decorator/;
 
-sub AUTOLOAD {
+sub is_authflagged {
     my $self = shift;
-    my $component = $self->component;
-    return if $AUTOLOAD =~ /::DESTROY$/;
-    my $method = $AUTOLOAD;
-    $method =~ s/.+:://;
-    $component->$method(@_);
+    $self->headers->header('x-niconico-authflag');
 }
 
-sub new {
-    my $class = shift;
-    $class = ref $class || $class;
-    my $http_response = shift;
-    my $self = {
-        component => $http_response,
-        };
-    bless $self, $class;
-    return $self;
+sub parsed_content { # abstract
+    my $self = shift;
+    $self->_component->decoded_content;
 }
 
-sub component {
+sub is_content_success { # abstract
     my $self = shift;
-    return @_ ? $self->{component} = shift : $self->{component};
+    $self->_component->is_success;
 }
 
-sub parsed_content { # abstruct
+sub is_content_error { # abstract
     my $self = shift;
-    $self->component->decoded_content;
-}
-
-sub is_content_success { # abstruct
-    my $self = shift;
-    $self->component->is_success;
-}
-
-sub is_content_error { # abstruct
-    my $self = shift;
-    $self->component->is_error;
+    $self->_component->is_error;
 }
 
 1;
+__END__
+
+
+=pod
+
+=head1 NAME
+
+Net::NicoVideo::Response - Abstract class decorates with HTTP::Response
+
+=head1 SYNOPSIS
+
+    my $response = Net::NicoVideo::Response->new( $ua->request(...) );
+    
+=head1 DESCRIPTION
+
+Abstract class decorates with HTTP::Response
+
+=head1 SEE ALSO
+
+L<Net::NicoVideo::Decorator>
+
+=head1 AUTHOR
+
+WATANABE Hiroaki E<lt>hwat@mac.comE<gt>
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=cut

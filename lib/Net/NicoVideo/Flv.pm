@@ -3,7 +3,7 @@ package Net::NicoVideo::Flv;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_01';
+$VERSION = '0.01_03';
 
 use base qw(Class::Accessor::Fast);
 use Carp qw(croak);
@@ -31,7 +31,7 @@ rpu
 
 __PACKAGE__->mk_accessors(@Members);
 
-sub names {
+sub members {
     my @copy = @Members;
     @copy;
 }

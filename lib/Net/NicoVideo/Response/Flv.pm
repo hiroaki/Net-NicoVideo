@@ -3,7 +3,7 @@ package Net::NicoVideo::Response::Flv;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_01';
+$VERSION = '0.01_03';
 
 use base qw/Net::NicoVideo::Response/;
 
@@ -14,7 +14,7 @@ use Net::NicoVideo::Flv;
 sub parse {
     my $self = shift;
     unless( $self->{_parsed_content} ){
-        $self->{_parsed_content} = CGI::Simple->new($self->component->decoded_content);
+        $self->{_parsed_content} = CGI::Simple->new($self->_component->decoded_content);
     }
     return $self->{_parsed_content};
 }
@@ -25,7 +25,7 @@ sub parsed_content { # implement
 
     my $parsed = $self->parse;
     my $params = {};
-    for my $name ( Net::NicoVideo::Flv->names ){
+    for my $name ( Net::NicoVideo::Flv->members ){
         $params->{$name} = $parsed->param($name);
     }
     return Net::NicoVideo::Flv->new($params);
@@ -42,13 +42,7 @@ sub is_content_success { # implement
 }
 
 sub is_content_error { # implement
-    my $self = shift;
-    my $url = $self->parse->param('url');
-    if( defined $url and $url =~ /nicovideo\.jp/ ){
-        return 0;
-    }else{
-        return 1;
-    }
+    not shift->is_content_success
 }
 
 1;

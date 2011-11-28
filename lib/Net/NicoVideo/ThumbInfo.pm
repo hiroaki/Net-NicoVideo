@@ -3,7 +3,7 @@ package Net::NicoVideo::ThumbInfo;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_01';
+$VERSION = '0.01_03';
 
 use base qw(Class::Accessor::Fast);
 
@@ -32,7 +32,7 @@ user_id
 
 __PACKAGE__->mk_accessors(@Members);
 
-sub names {
+sub members {
     my @copy = @Members;
     @copy;
 }
