@@ -4,14 +4,12 @@ NAME
     Net::NicoVideo - Wrapping API of Nico Nico Douga
 
 SYNOPSIS
-        use 5.12.0;
-        use warnings;
         use Net::NicoVideo;
     
         my $video_id = $ARGV[0] or die;
     
         my $nnv = Net::NicoVideo->new({
-            username => 'your-nicovideo@email.address',
+            email    => 'your-nicovideo@email.address',
             password => 'and-password',
             });
     
@@ -19,9 +17,9 @@ SYNOPSIS
         my $flv  = $nnv->fetch_flv( $video_id );
     
     
-        say "downloading: ". $info->title;
+        printf "download: %s\n". $info->title;
         if( $flv->is_economy ){
-            say "now economy time, skip";
+            warn "now economy time, skip\n";
         }else{
             my $save_path = sprintf '%s/Movies/%s.%s',
                 $ENV{HOME}, $video_id, $info->movie_type;
@@ -57,4 +55,3 @@ AUTHOR
 
     This library is free software; you can redistribute it and/or modify it
     under the same terms as Perl itself.
-

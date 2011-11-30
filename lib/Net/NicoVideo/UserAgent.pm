@@ -3,7 +3,7 @@ package Net::NicoVideo::UserAgent;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_03';
+$VERSION = '0.01_04';
 
 use base qw/Net::NicoVideo::Decorator/;
 
@@ -21,16 +21,6 @@ sub new {
         unless( $component->isa('LWP::UserAgent') );
 
     $class->SUPER::new($component);
-}
-
-sub nicovideo_email {
-    my $self = shift;
-    return @_ ? $self->{nicovideo_email} = shift : $self->{nicovideo_email};
-}
-
-sub nicovideo_password {
-    my $self = shift;
-    return @_ ? $self->{nicovideo_password} = shift : $self->{nicovideo_password};
 }
 
 sub login {

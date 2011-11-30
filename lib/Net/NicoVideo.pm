@@ -3,12 +3,11 @@ package Net::NicoVideo;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_03';
+$VERSION = '0.01_04';
 
 use base qw(Class::Accessor::Fast);
-use Carp qw(croak);
-use Net::NicoVideo::UserAgent;
 use LWP::UserAgent;
+use Net::NicoVideo::UserAgent;
 
 use vars qw($DelayDefault);
 $DelayDefault = 1;
@@ -78,14 +77,12 @@ Net::NicoVideo - Wrapping API of Nico Nico Douga
 
 =head1 SYNOPSIS
 
-    use 5.12.0;
-    use warnings;
     use Net::NicoVideo;
     
     my $video_id = $ARGV[0] or die;
     
     my $nnv = Net::NicoVideo->new({
-        username => 'your-nicovideo@email.address',
+        email    => 'your-nicovideo@email.address',
         password => 'and-password',
         });
     
@@ -93,9 +90,9 @@ Net::NicoVideo - Wrapping API of Nico Nico Douga
     my $flv  = $nnv->fetch_flv( $video_id );
     
     
-    say "downloading: ". $info->title;
+    printf "download: %s\n". $info->title;
     if( $flv->is_economy ){
-        say "now economy time, skip";
+        warn "now economy time, skip\n";
     }else{
         my $save_path = sprintf '%s/Movies/%s.%s',
             $ENV{HOME}, $video_id, $info->movie_type;
