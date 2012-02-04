@@ -3,37 +3,35 @@ package Net::NicoVideo::Response::Flv;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_03';
+$VERSION = '0.01_04';
 
 use base qw/Net::NicoVideo::Response/;
 
 use CGI::Simple;
-use XML::TreePP;
 use Net::NicoVideo::Flv;
 
 sub parse {
     my $self = shift;
     unless( $self->{_parsed_content} ){
-        $self->{_parsed_content} = CGI::Simple->new($self->_component->decoded_content);
+        my $cgi = CGI::Simple->new($self->_component->decoded_content);
+        my $params = {};
+        for ( $cgi->param ){
+            $params->{$_} = $cgi->param($_);
+        }
+        $self->{_parsed_content} = $params;
     }
     return $self->{_parsed_content};
 }
 
-# check is_success and is_content_success before calling this
 sub parsed_content { # implement
     my $self = shift;
-
-    my $parsed = $self->parse;
-    my $params = {};
-    for my $name ( Net::NicoVideo::Flv->members ){
-        $params->{$name} = $parsed->param($name);
-    }
-    return Net::NicoVideo::Flv->new($params);
+    $self->{_content_object} ||= Net::NicoVideo::Flv->new($self->parse);
 }
 
 sub is_content_success { # implement
     my $self = shift;
-    my $url = $self->parse->param('url');
+    my $params = $self->parse;
+    my $url = $params->{'url'};
     if( defined $url and $url =~ /nicovideo\.jp/ ){
         return 1;
     }else{
@@ -42,7 +40,7 @@ sub is_content_success { # implement
 }
 
 sub is_content_error { # implement
-    not shift->is_content_success
+    not shift->is_content_success;
 }
 
 1;

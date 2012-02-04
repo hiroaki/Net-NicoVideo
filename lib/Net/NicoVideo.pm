@@ -3,9 +3,11 @@ package Net::NicoVideo;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_04';
+$VERSION = '0.01_05';
 
 use base qw(Class::Accessor::Fast);
+
+use Carp qw(croak);
 use LWP::UserAgent;
 use Net::NicoVideo::UserAgent;
 
@@ -40,29 +42,96 @@ sub get_password {
 
 sub fetch_thumbinfo {
     my ($self, $video_id) = @_;
-    $self->get_user_agent->request_thumbinfo($video_id)->parsed_content;
+    my $res = $self->get_user_agent->request_thumbinfo($video_id);
+
+    croak "Request 'request_thumbinfo' is error: @{[ $res->status_line ]}"
+        if( $res->is_error );
+    
+    croak "Invalid content as 'thumbinfo': @{[ $res->content ]}"
+        if( $res->is_content_error );
+
+    return $res->parsed_content;
 }
 
 sub fetch_flv {
     my ($self, $video_id) = @_;
-    $self->get_user_agent->request_flv($video_id, $self->get_email, $self->get_password)->parsed_content;
+    my $ua  = $self->get_user_agent;
+    my $res = $ua->request_flv($video_id);
+
+    croak "Request 'request_flv' is error: @{[ $res->status_line ]}"
+        if( $res->is_error );
+
+    unless( $res->is_authflagged ){
+    
+        my $reslogin = $ua->request_login($self->get_email, $self->get_password);
+        croak "Request 'request_login' is error: @{[ $reslogin->status_line ]}"
+            if( $reslogin->is_error );
+
+        $ua->login( $reslogin );
+
+        # try again
+        $res = $ua->request_flv($video_id);
+        croak "Cannot login because specified account is something wrong"
+            unless( $res->is_authflagged );
+    }
+
+    croak "Invalid content as 'flv': @{[ $res->content ]}"
+        if( $res->is_content_error );
+
+    return $res->parsed_content;
 }
 
 sub watch_video {
     my ($self, $video_id) = @_;
-    $self->get_user_agent->request_watching($video_id, $self->get_email, $self->get_password);
+    my $ua  = $self->get_user_agent;
+    my $res = $ua->request_watch($video_id);
+
+    croak "Request 'request_watch' is error: @{[ $res->status_line ]}"
+        if( $res->is_error );
+
+    unless( $res->is_authflagged ){
+
+        my $reslogin = $ua->request_login($self->get_email, $self->get_password);
+        croak "Request 'request_login' is error: @{[ $reslogin->status_line ]}"
+            if( $reslogin->is_error );
+
+        $ua->login( $reslogin );
+
+        # try again
+        $res = $ua->request_watch($video_id);
+        croak "Cannot login because specified account is something wrong"
+            unless( $res->is_authflagged );
+    }
+
+    croak "Invalid content as 'watch': @{[ $res->content ]}"
+        if( $res->is_content_error );
+
+    return $res->parsed_content;
 }
 
 sub fetch_video {
     my ($self, $flv, @args) = @_;
-    $self->get_user_agent->request_get($flv->url, @args);
+    
+    my $res = $self->get_user_agent->request_get($flv->url, @args);
+    croak "Request 'fetch_video' is error: @{[ $res->status_line ]}"
+        if( $res->is_error );
+
+    # TODO - parsed_content ?
+    return;
 }
 
 sub download {
     my ($self, $video_id, @args) = @_;
-    $self->get_user_agent->request_watching($video_id);
+    
+    $self->watch_video($video_id);
+
     sleep (defined $self->delay ? $self->delay : $DelayDefault);
-    $self->fetch_video($self->fetch_flv($video_id), @args);
+
+    my $res = $self->fetch_video($self->fetch_flv($video_id), @args);
+    croak "Request 'fetch_video' is error: @{[ $res->status_line ]}"
+        if( $res->is_error );
+
+    return $self;
 }
 
 1;
@@ -103,9 +172,13 @@ Net::NicoVideo - Wrapping API of Nico Nico Douga
 
 =head1 DESCRIPTION
 
-This provides methods that accessing API of Nico Nico Douga
-via each object Net::NicoVideo::ThumbInfo and Net::NicoVideo::Flv.
-Please see these classes for detail.
+Net::NicoVideo provides methods accessing API of Nico Nico Douga.
+Each methods return the data capsule class which stored the result of having parsed the response.
+Please see these classes for detail,
+L<Net::NicoVideo::Flv>, L<Net::NicoVideo::ThumbInfo> and L<Net::NicoVideo::Watch>.
+
+Note that this class is the utility that uses actually accessing to API.
+Therefore we can also use L<Net::NicoVideo::UserAgent> to tackle the low level problems.
 
 =head1 ENVIRONMENT VARIABLE
 
@@ -127,6 +200,7 @@ You can download video by one liner:
 
 L<Net::NicoVideo::Flv>
 L<Net::NicoVideo::ThumbInfo>
+L<Net::NicoVideo::Watch>
 
 =head1 AUTHOR
 
