@@ -6,8 +6,12 @@ lib/Net/NicoVideo/Request.pm
 lib/Net/NicoVideo/Response.pm
 lib/Net/NicoVideo/Response/Flv.pm
 lib/Net/NicoVideo/Response/ThumbInfo.pm
+lib/Net/NicoVideo/Response/Video.pm
+lib/Net/NicoVideo/Response/Watch.pm
 lib/Net/NicoVideo/ThumbInfo.pm
 lib/Net/NicoVideo/UserAgent.pm
+lib/Net/NicoVideo/Video.pm
+lib/Net/NicoVideo/Watch.pm
 Makefile.PL
 MANIFEST			This list of files
 MYMETA.json

@@ -3,7 +3,7 @@ package Net::NicoVideo::UserAgent;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_05';
+$VERSION = '0.01_06';
 
 use base qw(Net::NicoVideo::Decorator);
 
@@ -12,6 +12,7 @@ use HTTP::Request::Common;
 use Net::NicoVideo::Response;
 use Net::NicoVideo::Response::Flv;
 use Net::NicoVideo::Response::ThumbInfo;
+use Net::NicoVideo::Response::Video;
 use Net::NicoVideo::Response::Watch;
 
 sub new {
@@ -65,6 +66,12 @@ sub request_watch {
     my ($self, $video_id) = @_;
     my $url = 'http://www.nicovideo.jp/watch/'.$video_id;
     Net::NicoVideo::Response::Watch->new( $self->request(GET $url) );
+}
+
+sub request_video {
+    my ($self, $flv, @args) = @_;
+    my $url = ( ref $flv ) ? $flv->url : $flv;
+    Net::NicoVideo::Response::Video->new( $self->request((GET $url), @args) );
 }
 
 sub request_get {

@@ -3,7 +3,7 @@ package Net::NicoVideo;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_05';
+$VERSION = '0.01_06';
 
 use base qw(Class::Accessor::Fast);
 
@@ -47,7 +47,7 @@ sub fetch_thumbinfo {
     croak "Request 'request_thumbinfo' is error: @{[ $res->status_line ]}"
         if( $res->is_error );
     
-    croak "Invalid content as 'thumbinfo': @{[ $res->content ]}"
+    croak "Invalid content as 'thumbinfo'"
         if( $res->is_content_error );
 
     return $res->parsed_content;
@@ -75,7 +75,7 @@ sub fetch_flv {
             unless( $res->is_authflagged );
     }
 
-    croak "Invalid content as 'flv': @{[ $res->content ]}"
+    croak "Invalid content as 'flv'"
         if( $res->is_content_error );
 
     return $res->parsed_content;
@@ -103,7 +103,7 @@ sub watch_video {
             unless( $res->is_authflagged );
     }
 
-    croak "Invalid content as 'watch': @{[ $res->content ]}"
+    croak "Invalid content as 'watch'"
         if( $res->is_content_error );
 
     return $res->parsed_content;
@@ -112,25 +112,22 @@ sub watch_video {
 sub fetch_video {
     my ($self, $flv, @args) = @_;
     
-    my $res = $self->get_user_agent->request_get($flv->url, @args);
+    my $res = $self->get_user_agent->request_video($flv, @args);
     croak "Request 'fetch_video' is error: @{[ $res->status_line ]}"
         if( $res->is_error );
 
-    # TODO - parsed_content ?
-    return;
+    croak "Invalid content as 'video'"
+        if( $res->is_content_error );
+
+    return $res->parsed_content;
 }
 
 sub download {
     my ($self, $video_id, @args) = @_;
-    
     $self->watch_video($video_id);
-
-    sleep (defined $self->delay ? $self->delay : $DelayDefault);
-
-    my $res = $self->fetch_video($self->fetch_flv($video_id), @args);
-    croak "Request 'fetch_video' is error: @{[ $res->status_line ]}"
-        if( $res->is_error );
-
+    my $delay = defined($self->delay) ? $self->delay : $DelayDefault;
+    sleep $delay if( $delay );
+    $self->fetch_video($self->fetch_flv($video_id), @args);
     return $self;
 }
 

@@ -29,9 +29,15 @@ SYNOPSIS
         }
 
 DESCRIPTION
-    This provides methods that accessing API of Nico Nico Douga via each
-    object Net::NicoVideo::ThumbInfo and Net::NicoVideo::Flv. Please see
-    these classes for detail.
+    Net::NicoVideo provides methods accessing API of Nico Nico Douga. Each
+    methods return the data capsule class which stored the result of having
+    parsed the response. Please see these classes for detail,
+    Net::NicoVideo::Flv, Net::NicoVideo::ThumbInfo and
+    Net::NicoVideo::Watch.
+
+    Note that this class is the utility that uses actually accessing to API.
+    Therefore we can also use Net::NicoVideo::UserAgent to tackle the low
+    level problems.
 
 ENVIRONMENT VARIABLE
         NET_NICOVIDEO_EMAIL
@@ -48,10 +54,11 @@ ENVIRONMENT VARIABLE
         $ perl -MNet::NicoVideo -e 'Net::NicoVideo->new->download("smNNNNNN", "./smile.mp4")'
 
 SEE ALSO
-    Net::NicoVideo::Flv Net::NicoVideo::ThumbInfo
+    Net::NicoVideo::Flv Net::NicoVideo::ThumbInfo Net::NicoVideo::Watch
 
 AUTHOR
     WATANABE Hiroaki <hwat@mac.com>
 
     This library is free software; you can redistribute it and/or modify it
     under the same terms as Perl itself.
+
