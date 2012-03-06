@@ -2,9 +2,11 @@ Changes
 lib/Net/NicoVideo.pm
 lib/Net/NicoVideo/Decorator.pm
 lib/Net/NicoVideo/Flv.pm
+lib/Net/NicoVideo/MyList.pm
 lib/Net/NicoVideo/Request.pm
 lib/Net/NicoVideo/Response.pm
 lib/Net/NicoVideo/Response/Flv.pm
+lib/Net/NicoVideo/Response/MyList.pm
 lib/Net/NicoVideo/Response/ThumbInfo.pm
 lib/Net/NicoVideo/Response/Video.pm
 lib/Net/NicoVideo/Response/Watch.pm
@@ -18,3 +20,4 @@ MYMETA.json
 MYMETA.yml
 README
 t/00_compile.t
+t/50_mylist.t

@@ -3,7 +3,7 @@ package Net::NicoVideo;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_06';
+$VERSION = '0.01_07';
 
 use base qw(Class::Accessor::Fast);
 
@@ -76,6 +76,19 @@ sub fetch_flv {
     }
 
     croak "Invalid content as 'flv'"
+        if( $res->is_content_error );
+
+    return $res->parsed_content;
+}
+
+sub fetch_mylist {
+    my ($self, $mylist_id) = @_;
+    my $res = $self->get_user_agent->request_mylist($mylist_id);
+
+    croak "Request 'request_mylist' is error: @{[ $res->status_line ]}"
+        if( $res->is_error );
+    
+    croak "Invalid content as 'mylist'"
         if( $res->is_content_error );
 
     return $res->parsed_content;
@@ -172,7 +185,7 @@ Net::NicoVideo - Wrapping API of Nico Nico Douga
 Net::NicoVideo provides methods accessing API of Nico Nico Douga.
 Each methods return the data capsule class which stored the result of having parsed the response.
 Please see these classes for detail,
-L<Net::NicoVideo::Flv>, L<Net::NicoVideo::ThumbInfo> and L<Net::NicoVideo::Watch>.
+L<Net::NicoVideo::Flv>, L<Net::NicoVideo::ThumbInfo>, L<Net::NicoVideo::Watch> and etc.
 
 Note that this class is the utility that uses actually accessing to API.
 Therefore we can also use L<Net::NicoVideo::UserAgent> to tackle the low level problems.
@@ -187,16 +200,16 @@ If the object has each value as its members, priority is given to them.
 
 =head2 FOR BUSY PERSON
 
-You can download video by one liner:
+You can download a video by one liner:
 
-    $ export NET_NICOVIDEO_EMAIL=your-nicovideo@email.address
-    $ export NET_NICOVIDEO_PASSWORD=and-password
-    $ perl -MNet::NicoVideo -e 'Net::NicoVideo->new->download("smNNNNNN", "./smile.mp4")'
+    $ perl -MNet::NicoVideo -e 'Net::NicoVideo->new->download(@ARGV)' smNNNNNN ./smile.mp4
 
 =head1 SEE ALSO
 
 L<Net::NicoVideo::Flv>
+L<Net::NicoVideo::MyList>
 L<Net::NicoVideo::ThumbInfo>
+L<Net::NicoVideo::Video>
 L<Net::NicoVideo::Watch>
 
 =head1 AUTHOR

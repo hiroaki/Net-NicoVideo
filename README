@@ -32,8 +32,8 @@ DESCRIPTION
     Net::NicoVideo provides methods accessing API of Nico Nico Douga. Each
     methods return the data capsule class which stored the result of having
     parsed the response. Please see these classes for detail,
-    Net::NicoVideo::Flv, Net::NicoVideo::ThumbInfo and
-    Net::NicoVideo::Watch.
+    Net::NicoVideo::Flv, Net::NicoVideo::ThumbInfo, Net::NicoVideo::Watch
+    and etc.
 
     Note that this class is the utility that uses actually accessing to API.
     Therefore we can also use Net::NicoVideo::UserAgent to tackle the low
@@ -47,14 +47,13 @@ ENVIRONMENT VARIABLE
     each value as its members, priority is given to them.
 
   FOR BUSY PERSON
-    You can download video by one liner:
+    You can download a video by one liner:
 
-        $ export NET_NICOVIDEO_EMAIL=your-nicovideo@email.address
-        $ export NET_NICOVIDEO_PASSWORD=and-password
-        $ perl -MNet::NicoVideo -e 'Net::NicoVideo->new->download("smNNNNNN", "./smile.mp4")'
+        $ perl -MNet::NicoVideo -e 'Net::NicoVideo->new->download(@ARGV)' smNNNNNN ./smile.mp4
 
 SEE ALSO
-    Net::NicoVideo::Flv Net::NicoVideo::ThumbInfo Net::NicoVideo::Watch
+    Net::NicoVideo::Flv Net::NicoVideo::MyList Net::NicoVideo::ThumbInfo
+    Net::NicoVideo::Video Net::NicoVideo::Watch
 
 AUTHOR
     WATANABE Hiroaki <hwat@mac.com>

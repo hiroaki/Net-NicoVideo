@@ -10,5 +10,6 @@ WriteMakefile(
     HTTP::Request::Common => 0,
     Test::More => 0.32,
     XML::TreePP => 0,
+    XML::FeedPP => 0,
     },
 );

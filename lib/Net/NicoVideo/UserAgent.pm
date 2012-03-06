@@ -3,7 +3,7 @@ package Net::NicoVideo::UserAgent;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_06';
+$VERSION = '0.01_07';
 
 use base qw(Net::NicoVideo::Decorator);
 
@@ -72,6 +72,13 @@ sub request_video {
     my ($self, $flv, @args) = @_;
     my $url = ( ref $flv ) ? $flv->url : $flv;
     Net::NicoVideo::Response::Video->new( $self->request((GET $url), @args) );
+}
+
+sub request_mylist {
+    my ($self, $mylist_id) = @_;
+    my $url = 'http://www.nicovideo.jp/mylist/'.$mylist_id.'?rss=2.0';
+    require Net::NicoVideo::Response::MyList;
+    Net::NicoVideo::Response::MyList->new( $self->request(GET $url) );
 }
 
 sub request_get {
