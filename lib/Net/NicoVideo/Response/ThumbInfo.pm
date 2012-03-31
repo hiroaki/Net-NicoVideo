@@ -3,12 +3,12 @@ package Net::NicoVideo::Response::ThumbInfo;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_04';
+$VERSION = '0.01_08';
 
 use base qw/Net::NicoVideo::Response/;
 
 use XML::TreePP;
-use Net::NicoVideo::ThumbInfo;
+use Net::NicoVideo::Content::ThumbInfo;
 
 sub parse {
     my $self = shift;
@@ -21,7 +21,7 @@ sub parse {
 
 sub parsed_content { # implement
     my $self = shift;
-    $self->{_parsed_object} ||= Net::NicoVideo::ThumbInfo->new(
+    $self->{_parsed_object} ||= Net::NicoVideo::Content::ThumbInfo->new(
                                     $self->parse->{nicovideo_thumb_response}->{thumb});
 }
 

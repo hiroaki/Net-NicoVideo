@@ -3,7 +3,7 @@ package Net::NicoVideo;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_07';
+$VERSION = '0.01_08';
 
 use base qw(Class::Accessor::Fast);
 
@@ -152,23 +152,22 @@ __END__
 
 =head1 NAME
 
-Net::NicoVideo - Wrapping API of Nico Nico Douga
+Net::NicoVideo - Perl Interface for accessing Nico Nico Douga
 
 =head1 SYNOPSIS
 
     use Net::NicoVideo;
-    
+
     my $video_id = $ARGV[0] or die;
-    
+
     my $nnv = Net::NicoVideo->new({
         email    => 'your-nicovideo@email.address',
         password => 'and-password',
         });
-    
+
     my $info = $nnv->fetch_thumbinfo( $video_id );
     my $flv  = $nnv->fetch_flv( $video_id );
-    
-    
+
     printf "download: %s\n". $info->title;
     if( $flv->is_economy ){
         warn "now economy time, skip\n";
@@ -182,13 +181,94 @@ Net::NicoVideo - Wrapping API of Nico Nico Douga
 
 =head1 DESCRIPTION
 
-Net::NicoVideo provides methods accessing API of Nico Nico Douga.
-Each methods return the data capsule class which stored the result of having parsed the response.
-Please see these classes for detail,
-L<Net::NicoVideo::Flv>, L<Net::NicoVideo::ThumbInfo>, L<Net::NicoVideo::Watch> and etc.
+Nico Nico Douga (ニコニコ動画, lit. "Smile Videos") is a popular video sharing website
+in Japan managed by Niwango, a subsidiary of Dwango.
 
-Note that this class is the utility that uses actually accessing to API.
-Therefore we can also use L<Net::NicoVideo::UserAgent> to tackle the low level problems.
+A Distribution Net-NicoVideo is Perl Interface for accessing Nico Nico Douga.
+This provides the consistent access method,
+and contents are encapsulated and give facilities to clients.
+
+Net::NicoVideo, instance of this class, is an utility
+that actually uses agent Net::NicoVideo::UserAgent.
+Therefore we can also use Net::NicoVideo::UserAgent to tackle the low level problems.
+
+=head1 CONSTRUCTOR
+
+TODO
+
+=head1 ACCESS METHOD
+
+=head2 user_agent
+
+TODO
+
+=head2 email
+
+TODO
+
+=head2 password
+
+TODO
+
+=head2 delay
+
+TODO
+
+=head2 get_user_agent
+
+Create an instance of Net::NicoVideo::UserAgent.
+
+=head2 get_email
+
+Get email that instance has.
+If it is not defined, $ENV{NET_NICOVIDEO_EMAIL} is returned instead.
+
+=head2 get_password
+
+Get password that the instance has.
+If it is not defined, $ENV{NET_NICOVIDEO_PASSWORD} is returned instead.
+
+=head1 FETCH METHOD
+
+Each methods return Net::NicoVideo::Content class which stored the result of having parsed the response.
+Please see sub classes under Net::NicoVideo::Content for detail.
+
+=head2 fetch_thumbinfo(video_id)
+
+Get an instance of Net::NicoVideo::Content::ThumbInfo for video_id.
+
+=head2 fetch_flv(video_id)
+
+Get an instance of Net::NicoVideo::Content::Flv for video_id.
+
+=head2 fetch_mylist
+
+Get an instance of Net::NicoVideo::Content::Mylist for video_id.
+
+=head2 watch_video(video_id)
+
+Get an instance of Net::NicoVideo::Content::Watch for video_id.
+
+This means that the agent watches the video, and this behavior is required before fetch_video.
+
+=head2 fetch_video(Net::NicoVideo::Content::Flv, @args)
+
+Get an instance of Net::NicoVideo::Content::Video for video_id
+taht is included Net::NicoVideo::Content::Flv object.
+
+This method works like as request() method of LWP::UserAgent, in fact, it is called.
+
+=head1 UTILITY METHOD
+
+=head2 download(video_id, file)
+
+This is a shortcut to download video that is identified by video_id.
+
+For busy person, you can download a video by one liner like this:
+
+    $ perl -MNet::NicoVideo -e 'Net::NicoVideo->new->download(@ARGV)' smNNNNNN ./smile.mp4
+
+Note that it is necessary to set environment variables in advance.
 
 =head1 ENVIRONMENT VARIABLE
 
@@ -198,19 +278,10 @@ Therefore we can also use L<Net::NicoVideo::UserAgent> to tackle the low level p
 These obvious environment variables are effective. 
 If the object has each value as its members, priority is given to them.
 
-=head2 FOR BUSY PERSON
-
-You can download a video by one liner:
-
-    $ perl -MNet::NicoVideo -e 'Net::NicoVideo->new->download(@ARGV)' smNNNNNN ./smile.mp4
-
 =head1 SEE ALSO
 
-L<Net::NicoVideo::Flv>
-L<Net::NicoVideo::MyList>
-L<Net::NicoVideo::ThumbInfo>
-L<Net::NicoVideo::Video>
-L<Net::NicoVideo::Watch>
+L<Net::NicoVideo::Content>
+L<Net::NicoVideo::UserAgent>
 
 =head1 AUTHOR
 

@@ -1,9 +1,9 @@
-package Net::NicoVideo::Flv;
+package Net::NicoVideo::Content::Flv;
 
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_03';
+$VERSION = '0.01_08';
 
 use base qw(Class::Accessor::Fast);
 use Carp qw(croak);

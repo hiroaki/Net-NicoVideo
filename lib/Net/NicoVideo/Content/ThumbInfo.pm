@@ -1,9 +1,9 @@
-package Net::NicoVideo::ThumbInfo;
+package Net::NicoVideo::Content::ThumbInfo;
 
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_03';
+$VERSION = '0.01_08';
 
 use base qw(Class::Accessor::Fast);
 

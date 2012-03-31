@@ -3,12 +3,12 @@ package Net::NicoVideo::Response::Flv;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_04';
+$VERSION = '0.01_08';
 
 use base qw/Net::NicoVideo::Response/;
 
 use CGI::Simple;
-use Net::NicoVideo::Flv;
+use Net::NicoVideo::Content::Flv;
 
 sub parse {
     my $self = shift;
@@ -25,7 +25,7 @@ sub parse {
 
 sub parsed_content { # implement
     my $self = shift;
-    $self->{_content_object} ||= Net::NicoVideo::Flv->new($self->parse);
+    $self->{_content_object} ||= Net::NicoVideo::Content::Flv->new($self->parse);
 }
 
 sub is_content_success { # implement

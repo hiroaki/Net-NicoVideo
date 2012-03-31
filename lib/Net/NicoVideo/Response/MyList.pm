@@ -3,11 +3,11 @@ package Net::NicoVideo::Response::MyList;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_07';
+$VERSION = '0.01_08';
 
 use base qw/Net::NicoVideo::Response/;
 
-use Net::NicoVideo::MyList;
+use Net::NicoVideo::Content::MyList;
 use XML::FeedPP;
 
 sub parse {
@@ -21,7 +21,7 @@ sub parse {
 
 sub parsed_content { # implement
     my $self = shift;
-    $self->{_content_object} ||= Net::NicoVideo::MyList->new($self->parse);
+    $self->{_content_object} ||= Net::NicoVideo::Content::MyList->new($self->parse);
 }
 
 sub is_content_success { # implement

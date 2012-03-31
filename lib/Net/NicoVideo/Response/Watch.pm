@@ -3,11 +3,11 @@ package Net::NicoVideo::Response::Watch;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_01';
+$VERSION = '0.01_08';
 
 use base qw/Net::NicoVideo::Response/;
 
-use Net::NicoVideo::Watch;
+use Net::NicoVideo::Content::Watch;
 
 # TODO - temporary it returns decded_content
 sub parse {
@@ -17,7 +17,7 @@ sub parse {
 
 sub parsed_content { # implement
     my $self = shift;
-    $self->{_content_object} ||= Net::NicoVideo::Watch->new($self->parse);
+    $self->{_content_object} ||= Net::NicoVideo::Content::Watch->new($self->parse);
 }
 
 # TODO - more carefull
