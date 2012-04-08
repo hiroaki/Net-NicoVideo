@@ -6,12 +6,12 @@ use Test::More;
 
 use HTTP::Response;
 use Encode;
-use Net::NicoVideo::Response::MyList;
+use Net::NicoVideo::Response::Mylist;
 
 local $/ = undef;
-my $res = Net::NicoVideo::Response::MyList->new(
+my $res = Net::NicoVideo::Response::Mylist->new(
             HTTP::Response->parse(Encode::encode('utf8', <DATA>)));
-isa_ok( $res, 'Net::NicoVideo::Response::MyList' );
+isa_ok( $res, 'Net::NicoVideo::Response::Mylist' );
 
 my $mylist = $res->parsed_content;
 is( scalar $mylist->get_item, 4, 'get_item' );

@@ -1,13 +1,13 @@
-package Net::NicoVideo::Response::MyList;
+package Net::NicoVideo::Response::Mylist;
 
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_08';
+$VERSION = '0.01_09';
 
 use base qw/Net::NicoVideo::Response/;
 
-use Net::NicoVideo::Content::MyList;
+use Net::NicoVideo::Content::Mylist;
 use XML::FeedPP;
 
 sub parse {
@@ -21,7 +21,7 @@ sub parse {
 
 sub parsed_content { # implement
     my $self = shift;
-    $self->{_content_object} ||= Net::NicoVideo::Content::MyList->new($self->parse);
+    $self->{_content_object} ||= Net::NicoVideo::Content::Mylist->new($self->parse);
 }
 
 sub is_content_success { # implement
@@ -38,3 +38,4 @@ sub is_content_error { # implement
 }
 
 1;
+__END__

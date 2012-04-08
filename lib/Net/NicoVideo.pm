@@ -3,7 +3,7 @@ package Net::NicoVideo;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_08';
+$VERSION = '0.01_09';
 
 use base qw(Class::Accessor::Fast);
 
@@ -83,11 +83,27 @@ sub fetch_flv {
 
 sub fetch_mylist {
     my ($self, $mylist_id) = @_;
-    my $res = $self->get_user_agent->request_mylist($mylist_id);
-
-    croak "Request 'request_mylist' is error: @{[ $res->status_line ]}"
-        if( $res->is_error );
+    my $ua  = $self->get_user_agent;
+    my $res = $ua->request_mylist($mylist_id);
     
+    if( $res->is_error and $res->code ne '403' ){
+        croak "Request 'request_mylist' is error: @{[ $res->status_line ]}"
+    }
+
+    if( ! $res->is_authflagged and defined $self->get_email and defined $self->get_password ){
+    
+        my $reslogin = $ua->request_login($self->get_email, $self->get_password);
+        croak "Request 'request_login' is error: @{[ $reslogin->status_line ]}"
+            if( $reslogin->is_error );
+
+        $ua->login( $reslogin );
+
+        # try again
+        $res = $ua->request_mylist($mylist_id);
+        croak "Cannot login because specified account is something wrong"
+            unless( $res->is_authflagged );
+    }
+
     croak "Invalid content as 'mylist'"
         if( $res->is_content_error );
 
@@ -241,9 +257,9 @@ Get an instance of Net::NicoVideo::Content::ThumbInfo for video_id.
 
 Get an instance of Net::NicoVideo::Content::Flv for video_id.
 
-=head2 fetch_mylist
+=head2 fetch_mylist(mylist_id)
 
-Get an instance of Net::NicoVideo::Content::Mylist for video_id.
+Get an instance of Net::NicoVideo::Content::Mylist for mylist_id.
 
 =head2 watch_video(video_id)
 
@@ -283,9 +299,15 @@ If the object has each value as its members, priority is given to them.
 L<Net::NicoVideo::Content>
 L<Net::NicoVideo::UserAgent>
 
+=head1 REPOSITORY
+
+Net::NicoVideo is hosted on github https://github.com/hiroaki/Net-NicoVideo
+
 =head1 AUTHOR
 
 WATANABE Hiroaki E<lt>hwat@mac.comE<gt>
+
+=head1 LICENSE
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.

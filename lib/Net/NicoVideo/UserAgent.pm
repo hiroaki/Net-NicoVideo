@@ -3,17 +3,13 @@ package Net::NicoVideo::UserAgent;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_07';
+$VERSION = '0.01_09';
 
 use base qw(Net::NicoVideo::Decorator);
 
 use HTTP::Cookies;
 use HTTP::Request::Common;
 use Net::NicoVideo::Response;
-use Net::NicoVideo::Response::Flv;
-use Net::NicoVideo::Response::ThumbInfo;
-use Net::NicoVideo::Response::Video;
-use Net::NicoVideo::Response::Watch;
 
 sub new {
     my ($class, $component, @opts) = @_;
@@ -46,6 +42,7 @@ sub request_login {
 sub request_thumbinfo {
     my ($self, $video_id) = @_;
     my $url = 'http://ext.nicovideo.jp/api/getthumbinfo/'.$video_id;
+    require Net::NicoVideo::Response::ThumbInfo;
     Net::NicoVideo::Response::ThumbInfo->new( $self->request(GET $url) );
 }
 
@@ -53,6 +50,7 @@ sub request_flv {
     my ($self, $video_id) = @_;
     my $url = 'http://flapi.nicovideo.jp/api/getflv/'.$video_id;
     my $params = $video_id =~ /^nm/ ? ['as3' => 1] : [];
+    require Net::NicoVideo::Response::Flv;
     Net::NicoVideo::Response::Flv->new( $self->request(POST $url, $params) );
 }
 
@@ -65,20 +63,22 @@ sub request_watching {
 sub request_watch {
     my ($self, $video_id) = @_;
     my $url = 'http://www.nicovideo.jp/watch/'.$video_id;
+    require Net::NicoVideo::Response::Watch;
     Net::NicoVideo::Response::Watch->new( $self->request(GET $url) );
 }
 
 sub request_video {
     my ($self, $flv, @args) = @_;
     my $url = ( ref $flv ) ? $flv->url : $flv;
+    require Net::NicoVideo::Response::Video;
     Net::NicoVideo::Response::Video->new( $self->request((GET $url), @args) );
 }
 
 sub request_mylist {
     my ($self, $mylist_id) = @_;
     my $url = 'http://www.nicovideo.jp/mylist/'.$mylist_id.'?rss=2.0';
-    require Net::NicoVideo::Response::MyList;
-    Net::NicoVideo::Response::MyList->new( $self->request(GET $url) );
+    require Net::NicoVideo::Response::Mylist;
+    Net::NicoVideo::Response::Mylist->new( $self->request(GET $url) );
 }
 
 sub request_get {
