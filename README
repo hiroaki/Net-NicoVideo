@@ -23,7 +23,7 @@ SYNOPSIS
             my $save_path = sprintf '%s/Movies/%s.%s',
                 $ENV{HOME}, $video_id, $info->movie_type;
     
-            $nnv->watch_video( $video_id );
+            $nnv->fetch_watch( $video_id );
             $nnv->fetch_video( $flv, $save_path );
         }
 
@@ -41,26 +41,46 @@ DESCRIPTION
     Net::NicoVideo::UserAgent to tackle the low level problems.
 
 CONSTRUCTOR
-    TODO
+        my $nnv = Net::NicoVideo->new({
+            user_agent  => LWP::UserAgent->new,
+            email       => 'your-nicovideo@email.address',
+            password    => 'and-password',
+            delay       => 1,
+            });
 
 ACCESS METHOD
   user_agent
-    TODO
+    Get or set user agent that $nnv would access to Nico Nico Video via
+    HTTP(s).
+
+        $nnv->user_agent($ua);
+        $ua = $nnv->user_agent;
 
   email
-    TODO
+    Get or set email string for login to Nico Nico Video service.
+
+        $nnv->email($email);
+        $email = $nnv->email;
 
   password
-    TODO
+    Get or set password string for login to Nico Nico Video service.
+
+        $nnv->password($password);
+        $password = $nnv->password;
 
   delay
-    TODO
+    Get or set delay seconds.
+
+        $nnv->delay($seconds);
+        $seconds = $nnv->delay;
 
   get_user_agent
-    Create an instance of Net::NicoVideo::UserAgent.
+    Create an instance of Net::NicoVideo::UserAgent that includes
+    $nnv->user_agent has. If it does not have then LWP::UserAgent would be
+    created.
 
   get_email
-    Get email that instance has. If it is not defined,
+    Get email that the instance has. If it is not defined,
     $ENV{NET_NICOVIDEO_EMAIL} is returned instead.
 
   get_password
@@ -78,21 +98,27 @@ FETCH METHOD
   fetch_flv(video_id)
     Get an instance of Net::NicoVideo::Content::Flv for video_id.
 
-  fetch_mylist
-    Get an instance of Net::NicoVideo::Content::Mylist for video_id.
+  fetch_mylist(mylist_id)
+    Get an instance of Net::NicoVideo::Content::Mylist for mylist_id.
 
-  watch_video(video_id)
+  fetch_watch(video_id)
     Get an instance of Net::NicoVideo::Content::Watch for video_id.
 
     This means that the agent watches the video, and this behavior is
     required before fetch_video.
 
-  fetch_video(Net::NicoVideo::Content::Flv, @args)
-    Get an instance of Net::NicoVideo::Content::Video for video_id taht is
-    included Net::NicoVideo::Content::Flv object.
+  fetch_video(video_id, @args)
+  fetch_video(flv, @args)
+  fetch_video(url, @args)
+    Get an instance of Net::NicoVideo::Content::Video for video_id, flv or
+    url.
 
-    This method works like as request() method of LWP::UserAgent, in fact,
-    it is called.
+    The url is value getting via $flv->url, and $flv is a
+    Net::NicoVideo::Content::Flv which is created by $nnv->fetch_flv.
+
+    The second parameter, it works like as request() method of
+    LWP::UserAgent, in fact, it is called. An example, if it is a scalar
+    value then it means that the file path to store contents.
 
 UTILITY METHOD
   download(video_id, file)
@@ -100,7 +126,8 @@ UTILITY METHOD
 
     For busy person, you can download a video by one liner like this:
 
-        $ perl -MNet::NicoVideo -e 'Net::NicoVideo->new->download(@ARGV)' smNNNNNN ./smile.mp4
+        $ perl -MNet::NicoVideo -e 'Net::NicoVideo->new->download(@ARGV)' \
+            smNNNNNN ./smile.mp4
 
     Note that it is necessary to set environment variables in advance.
 
@@ -114,9 +141,14 @@ ENVIRONMENT VARIABLE
 SEE ALSO
     Net::NicoVideo::Content Net::NicoVideo::UserAgent
 
+REPOSITORY
+    Net::NicoVideo is hosted on github
+    https://github.com/hiroaki/Net-NicoVideo
+
 AUTHOR
     WATANABE Hiroaki <hwat@mac.com>
 
+LICENSE
     This library is free software; you can redistribute it and/or modify it
     under the same terms as Perl itself.
 

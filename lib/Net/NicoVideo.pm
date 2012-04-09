@@ -3,7 +3,7 @@ package Net::NicoVideo;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_09';
+$VERSION = '0.01_10';
 
 use base qw(Class::Accessor::Fast);
 
@@ -11,8 +11,8 @@ use Carp qw(croak);
 use LWP::UserAgent;
 use Net::NicoVideo::UserAgent;
 
-use vars qw($DelayDefault);
-$DelayDefault = 1;
+use vars qw($DELAY_DEFAULT);
+$DELAY_DEFAULT = 1;
 
 __PACKAGE__->mk_accessors(qw(
 user_agent
@@ -110,7 +110,7 @@ sub fetch_mylist {
     return $res->parsed_content;
 }
 
-sub watch_video {
+sub fetch_watch {
     my ($self, $video_id) = @_;
     my $ua  = $self->get_user_agent;
     my $res = $ua->request_watch($video_id);
@@ -139,9 +139,13 @@ sub watch_video {
 }
 
 sub fetch_video {
-    my ($self, $flv, @args) = @_;
-    
-    my $res = $self->get_user_agent->request_video($flv, @args);
+    # $something accepts flv, url ( via flv->url ) or video_id
+    my ($self, $something, @args) = @_;
+    if( $something and ! ref($something) and $something !~ m{^https?://} ){
+        # it is a video_id
+        $something = $self->fetch_flv($something);
+    }
+    my $res = $self->get_user_agent->request_video($something, @args);
     croak "Request 'fetch_video' is error: @{[ $res->status_line ]}"
         if( $res->is_error );
 
@@ -153,8 +157,8 @@ sub fetch_video {
 
 sub download {
     my ($self, $video_id, @args) = @_;
-    $self->watch_video($video_id);
-    my $delay = defined($self->delay) ? $self->delay : $DelayDefault;
+    $self->fetch_watch($video_id);
+    my $delay = defined($self->delay) ? $self->delay : $DELAY_DEFAULT;
     sleep $delay if( $delay );
     $self->fetch_video($self->fetch_flv($video_id), @args);
     return $self;
@@ -191,7 +195,7 @@ Net::NicoVideo - Perl Interface for accessing Nico Nico Douga
         my $save_path = sprintf '%s/Movies/%s.%s',
             $ENV{HOME}, $video_id, $info->movie_type;
     
-        $nnv->watch_video( $video_id );
+        $nnv->fetch_watch( $video_id );
         $nnv->fetch_video( $flv, $save_path );
     }
 
@@ -210,33 +214,52 @@ Therefore we can also use Net::NicoVideo::UserAgent to tackle the low level prob
 
 =head1 CONSTRUCTOR
 
-TODO
+    my $nnv = Net::NicoVideo->new({
+        user_agent  => LWP::UserAgent->new,
+        email       => 'your-nicovideo@email.address',
+        password    => 'and-password',
+        delay       => 1,
+        });
 
 =head1 ACCESS METHOD
 
 =head2 user_agent
 
-TODO
+Get or set user agent that $nnv would access to Nico Nico Video via HTTP(s).
+
+    $nnv->user_agent($ua);
+    $ua = $nnv->user_agent;
 
 =head2 email
 
-TODO
+Get or set email string for login to Nico Nico Video service.
+
+    $nnv->email($email);
+    $email = $nnv->email;
 
 =head2 password
 
-TODO
+Get or set password string for login to Nico Nico Video service.
+
+    $nnv->password($password);
+    $password = $nnv->password;
 
 =head2 delay
 
-TODO
+Get or set delay seconds.
+
+    $nnv->delay($seconds);
+    $seconds = $nnv->delay;
 
 =head2 get_user_agent
 
-Create an instance of Net::NicoVideo::UserAgent.
+Create an instance of Net::NicoVideo::UserAgent
+that includes $nnv->user_agent has.
+If it does not have then LWP::UserAgent would be created.
 
 =head2 get_email
 
-Get email that instance has.
+Get email that the instance has.
 If it is not defined, $ENV{NET_NICOVIDEO_EMAIL} is returned instead.
 
 =head2 get_password
@@ -261,18 +284,24 @@ Get an instance of Net::NicoVideo::Content::Flv for video_id.
 
 Get an instance of Net::NicoVideo::Content::Mylist for mylist_id.
 
-=head2 watch_video(video_id)
+=head2 fetch_watch(video_id)
 
 Get an instance of Net::NicoVideo::Content::Watch for video_id.
 
 This means that the agent watches the video, and this behavior is required before fetch_video.
 
-=head2 fetch_video(Net::NicoVideo::Content::Flv, @args)
+=head2 fetch_video(video_id, @args)
+=head2 fetch_video(flv, @args)
+=head2 fetch_video(url, @args)
 
-Get an instance of Net::NicoVideo::Content::Video for video_id
-taht is included Net::NicoVideo::Content::Flv object.
+Get an instance of Net::NicoVideo::Content::Video for video_id, flv or url.
 
-This method works like as request() method of LWP::UserAgent, in fact, it is called.
+The url is value getting via $flv->url, and $flv is a Net::NicoVideo::Content::Flv
+which is created by $nnv->fetch_flv.
+
+The second parameter, it works like as request() method of LWP::UserAgent,
+in fact, it is called.
+An example, if it is a scalar value then it means that the file path to store contents.
 
 =head1 UTILITY METHOD
 
@@ -282,7 +311,8 @@ This is a shortcut to download video that is identified by video_id.
 
 For busy person, you can download a video by one liner like this:
 
-    $ perl -MNet::NicoVideo -e 'Net::NicoVideo->new->download(@ARGV)' smNNNNNN ./smile.mp4
+    $ perl -MNet::NicoVideo -e 'Net::NicoVideo->new->download(@ARGV)' \
+        smNNNNNN ./smile.mp4
 
 Note that it is necessary to set environment variables in advance.
 

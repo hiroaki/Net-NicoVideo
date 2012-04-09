@@ -20,4 +20,5 @@ MYMETA.json
 MYMETA.yml
 README
 t/00_compile.t
+t/10_net_nicovideo.t
 t/50_mylist.t
