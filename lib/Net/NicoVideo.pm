@@ -3,7 +3,7 @@ package Net::NicoVideo;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_10';
+$VERSION = '0.01_11';
 
 use base qw(Class::Accessor::Fast);
 
@@ -76,6 +76,23 @@ sub fetch_flv {
     }
 
     croak "Invalid content as 'flv'"
+        if( $res->is_content_error );
+
+    return $res->parsed_content;
+}
+
+sub fetch_thread {
+    # $something accepts flv, or video_id
+    my ($self, $something, $opts) = @_;
+    if( $something and ! ref($something) ){
+        # it is a video_id
+        $something = $self->fetch_flv($something);
+    }
+    my $res = $self->get_user_agent->request_thread($something, $opts);
+    croak "Request 'fetch_thread' is error: @{[ $res->status_line ]}"
+        if( $res->is_error );
+
+    croak "Invalid content as 'thread'"
         if( $res->is_content_error );
 
     return $res->parsed_content;
@@ -279,6 +296,11 @@ Get an instance of Net::NicoVideo::Content::ThumbInfo for video_id.
 =head2 fetch_flv(video_id)
 
 Get an instance of Net::NicoVideo::Content::Flv for video_id.
+
+=head2 fetch_thread(video_id, \%options)
+=head2 fetch_thread(flv, \%options)
+
+Get an instance of Net::NicoVideo::Content::Thread for video_id.
 
 =head2 fetch_mylist(mylist_id)
 

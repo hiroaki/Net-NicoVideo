@@ -3,7 +3,7 @@ package Net::NicoVideo::UserAgent;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_09';
+$VERSION = '0.01_11';
 
 use base qw(Net::NicoVideo::Decorator);
 
@@ -54,10 +54,14 @@ sub request_flv {
     Net::NicoVideo::Response::Flv->new( $self->request(POST $url, $params) );
 }
 
-sub request_watching {
-    my $self = shift;
-    warn "DEPRECATED WARNING: request_watching will removed future release, please use request_watch instead";
-    $self->request_watch(@_);
+sub request_thread {
+    my $self    = shift;
+    my $flv     = shift;
+    my $opts    = shift || {};
+    require Net::NicoVideo::Response::Thread;
+    Net::NicoVideo::Response::Thread->new( $self->request(POST $flv->ms,
+        Content => sprintf '<thread thread="%s" version="20061206" res_from="-%d"%s></thread>',
+                    $flv->thread_id, ($opts->{'chats'} || 250), ($opts->{'fork'} ? ' fork="1"' : '') ));
 }
 
 sub request_watch {

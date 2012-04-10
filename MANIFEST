@@ -2,6 +2,7 @@ Changes
 lib/Net/NicoVideo.pm
 lib/Net/NicoVideo/Content/Flv.pm
 lib/Net/NicoVideo/Content/Mylist.pm
+lib/Net/NicoVideo/Content/Thread.pm
 lib/Net/NicoVideo/Content/ThumbInfo.pm
 lib/Net/NicoVideo/Content/Video.pm
 lib/Net/NicoVideo/Content/Watch.pm
@@ -10,6 +11,7 @@ lib/Net/NicoVideo/Request.pm
 lib/Net/NicoVideo/Response.pm
 lib/Net/NicoVideo/Response/Flv.pm
 lib/Net/NicoVideo/Response/Mylist.pm
+lib/Net/NicoVideo/Response/Thread.pm
 lib/Net/NicoVideo/Response/ThumbInfo.pm
 lib/Net/NicoVideo/Response/Video.pm
 lib/Net/NicoVideo/Response/Watch.pm

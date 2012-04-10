@@ -98,6 +98,10 @@ FETCH METHOD
   fetch_flv(video_id)
     Get an instance of Net::NicoVideo::Content::Flv for video_id.
 
+  fetch_thread(video_id, \%options)
+  fetch_thread(flv, \%options)
+    Get an instance of Net::NicoVideo::Content::Thread for video_id.
+
   fetch_mylist(mylist_id)
     Get an instance of Net::NicoVideo::Content::Mylist for mylist_id.
 
