@@ -1,26 +1,50 @@
-package Net::NicoVideo::Content::Mylist;
-
 use strict;
 use warnings;
-use utf8;
-use vars qw($VERSION);
-$VERSION = '0.01_09';
 
-use base qw/Net::NicoVideo::Decorator/;
+package Net::NicoVideo::Content::Mylist;
+
+use vars qw($VERSION);
+$VERSION = '0.01_13';
+
+use base qw(Class::Accessor::Fast);
+use vars qw(@Members);
+@Members = qw(
+id
+user_id
+name
+description
+public
+default_sort
+create_time
+update_time
+sort_order
+icon_id
+);
+
+__PACKAGE__->mk_accessors(@Members);
 
 sub members {
-    ();
+    my @copy = @Members;
+    @copy;
 }
 
-sub is_closed {
-    my $self = shift;
-    if( $self->title eq 'マイリスト‐ニコニコ動画'
-    and $self->link eq 'http://www.nicovideo.jp/'
-    and $self->description eq 'このマイリストは非公開に設定されています。'
-    ){
-        return 1;
-    }
-    return 0;
+package Net::NicoVideo::Content::MylistError;
+
+use vars qw($VERSION);
+$VERSION = '0.01_13';
+
+use base qw(Class::Accessor::Fast);
+use vars qw(@Members);
+@Members = qw(
+code
+description
+);
+
+__PACKAGE__->mk_accessors(@Members);
+
+sub members {
+    my @copy = @Members;
+    @copy;
 }
 
 1;

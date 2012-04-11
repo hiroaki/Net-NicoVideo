@@ -6,26 +6,26 @@ use Test::More;
 
 use HTTP::Response;
 use Encode;
-use Net::NicoVideo::Response::Mylist;
+use Net::NicoVideo::Response::MylistRSS;
 
 local $/ = undef;
-my $res = Net::NicoVideo::Response::Mylist->new(
+my $res = Net::NicoVideo::Response::MylistRSS->new(
             HTTP::Response->parse(Encode::encode('utf8', <DATA>)));
-isa_ok( $res, 'Net::NicoVideo::Response::Mylist' );
+isa_ok( $res, 'Net::NicoVideo::Response::MylistRSS' );
 
-my $mylist = $res->parsed_content;
-is( scalar $mylist->get_item, 4, 'get_item' );
+my $rss = $res->parsed_content;
+is( scalar $rss->get_item, 4, 'get_item' );
 
-is( $mylist->title, 'マイリスト 初音ミク曲　-最近の投稿-‐ニコニコ動画', 'channel title');
-is( $mylist->description, '■新着チェック、マイページから→user/hoge'."\n", 'channel description');
-is( $mylist->pubDate, '2012-03-06T00:03:19+09:00', 'channel pubDate');
-is( $mylist->copyright, '(c) niwango, inc. All rights reserved.', 'channel copyright');
-is( $mylist->link, 'http://www.nicovideo.jp/mylist/0000001', 'channel link');
-is( $mylist->language, 'ja', 'channel language');
-is( $mylist->image, undef, 'channel image');
-is( $mylist->get('atom:link@href'), 'http://www.nicovideo.jp/mylist/0000001?rss=2.0', 'channel atom:link@href');
+is( $rss->title, 'マイリスト 初音ミク曲　-最近の投稿-‐ニコニコ動画', 'channel title');
+is( $rss->description, '■新着チェック、マイページから→user/hoge'."\n", 'channel description');
+is( $rss->pubDate, '2012-03-06T00:03:19+09:00', 'channel pubDate');
+is( $rss->copyright, '(c) niwango, inc. All rights reserved.', 'channel copyright');
+is( $rss->link, 'http://www.nicovideo.jp/mylist/0000001', 'channel link');
+is( $rss->language, 'ja', 'channel language');
+is( $rss->image, undef, 'channel image');
+is( $rss->get('atom:link@href'), 'http://www.nicovideo.jp/mylist/0000001?rss=2.0', 'channel atom:link@href');
 
-my $item = $mylist->get_item(2);
+my $item = $rss->get_item(2);
 is( $item->title, '【初音ミク】change【オリジナル曲】', 'item title');
 is( $item->description, '<p class="nico-memo">空海月</p><p class="nico-thumbnail"><img alt="【初音ミク】change【オリジナル曲】" src="http://tn-skr1.smilevideo.jp/smile?i=17086028" width="94" height="70" border="0"/></p><p class="nico-description">空海月です、こんにちは。いつもは結構キラキラだと思うんですが、今回はちょっとストイックなミクノでやってみました。やるせないような、悲しいような感じで曲は終わってますが、その苦しみから今度は自分の力でchangeしていく姿を思い描いて書いています。この素敵なイラストはPIAPROの咲那さんのものになります！http://piapro.jp/t/Kf-gマイリスト：mylist/20097259twitter始めました：@solakurage聴いてくれてありがとうm(_ _)m</p><p class="nico-info"><small><strong class="nico-info-length">4:23</strong>｜<strong class="nico-info-date">2012年02月26日 19：17：31</strong> 投稿</small></p>', 'item description');
 is( $item->pubDate, '2012-03-04T10:14:00+09:00', 'item pubDate');

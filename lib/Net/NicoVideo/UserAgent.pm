@@ -3,7 +3,7 @@ package Net::NicoVideo::UserAgent;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_12';
+$VERSION = '0.01_14';
 
 use base qw(Net::NicoVideo::Decorator);
 
@@ -78,11 +78,14 @@ sub request_video {
     Net::NicoVideo::Response::Video->new( $self->request((GET $url), @args) );
 }
 
-sub request_mylist {
-    my ($self, $mylist_id) = @_;
-    my $url = 'http://www.nicovideo.jp/mylist/'.$mylist_id.'?rss=2.0';
-    require Net::NicoVideo::Response::Mylist;
-    Net::NicoVideo::Response::Mylist->new( $self->request(GET $url) );
+sub request_mylistrss {
+    my ($self, $mylist) = @_; # mylist or mylist_id
+    if( ref($mylist) and $mylist->isa('Net::NicoVideo::Content::Mylist')){
+        $mylist = $mylist->id;
+    }
+    my $url = 'http://www.nicovideo.jp/mylist/'.$mylist.'?rss=2.0';
+    require Net::NicoVideo::Response::MylistRSS;
+    Net::NicoVideo::Response::MylistRSS->new( $self->request(GET $url) );
 }
 
 sub request_mylistgroup { # for user own

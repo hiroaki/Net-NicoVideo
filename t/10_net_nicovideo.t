@@ -75,7 +75,7 @@ TODO: {
 TODO: {
     local $TODO = "writing test";
     my $nnv = Net::NicoVideo->new;
-    ok( $nnv->can('fetch_mylist'), 'can fetch_mylist');
+    ok( $nnv->can('fetch_mylistrss'), 'can fetch_mylistrss');
 };
 
 # fetch_watch

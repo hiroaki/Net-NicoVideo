@@ -3,7 +3,7 @@ package Net::NicoVideo;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_12';
+$VERSION = '0.01_14';
 
 use base qw(Class::Accessor::Fast);
 
@@ -128,17 +128,18 @@ sub fetch_mylistgroup {
     return $res->parsed_content;
 }
 
-sub fetch_mylist {
-    my ($self, $mylist_id) = @_;
+sub fetch_mylistrss {
+    my ($self, $mylist) = @_;
     my $ua  = $self->get_user_agent;
-    my $res = $ua->request_mylist($mylist_id);
-    
-    if( $res->is_error and $res->code ne '403' ){
-        croak "Request 'request_mylist' is error: @{[ $res->status_line ]}"
-    }
+    my $res = $ua->request_mylistrss($mylist);
 
-    if( ! $res->is_authflagged and defined $self->get_email and defined $self->get_password ){
-    
+    croak "Request 'request_mylistrss' is error: @{[ $res->status_line ]}"
+        if( $res->is_error and $res->code ne '403' );
+
+    if( ( ! $res->is_authflagged or $res->is_closed ) 
+     and defined $self->get_email
+     and defined $self->get_password
+    ){
         my $reslogin = $ua->request_login($self->get_email, $self->get_password);
         croak "Request 'request_login' is error: @{[ $reslogin->status_line ]}"
             if( $reslogin->is_error );
@@ -146,7 +147,7 @@ sub fetch_mylist {
         $ua->login( $reslogin );
 
         # try again
-        $res = $ua->request_mylist($mylist_id);
+        $res = $ua->request_mylistrss($mylist);
         croak "Cannot login because specified account is something wrong"
             unless( $res->is_authflagged );
     }
@@ -332,9 +333,10 @@ Get an instance of Net::NicoVideo::Content::Flv for video_id.
 
 Get an instance of Net::NicoVideo::Content::Thread for video_id.
 
-=head2 fetch_mylist(mylist_id)
+=head2 fetch_mylistrss(mylist)
+=head2 fetch_mylistrss(mylist_id)
 
-Get an instance of Net::NicoVideo::Content::Mylist for mylist_id.
+Get an instance of Net::NicoVideo::Content::MylistRSS for mylist.
 
 =head2 fetch_mylistgroup
 

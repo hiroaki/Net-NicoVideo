@@ -3,10 +3,11 @@ package Net::NicoVideo::Response::MylistGroup;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_12';
+$VERSION = '0.01_13';
 
 use base qw/Net::NicoVideo::Response/;
 
+use Net::NicoVideo::Content::Mylist;
 use Net::NicoVideo::Content::MylistGroup;
 use JSON 2.01;
 
@@ -17,7 +18,26 @@ sub parse {
 
 sub parsed_content { # implement
     my $self = shift;
-    $self->{_content_object} ||= Net::NicoVideo::Content::MylistGroup->new( $self->parse );
+    unless( $self->{_content_object} ){
+        my $json = $self->parse;
+        
+        my $mg = Net::NicoVideo::Content::MylistGroup->new({
+            status => $json->{status},
+            });
+
+        $mg->error( Net::NicoVideo::Content::MylistError->new($json->{error}) )
+            if( $json->{error} );
+
+        my @mylists = ();
+        for my $ml ( @{$json->{mylistgroup}} ){
+            push @mylists, Net::NicoVideo::Content::Mylist->new($ml);
+        }
+
+        $mg->mylistgroup(\@mylists);
+
+        $self->{_content_object} = $mg;
+    }
+    $self->{_content_object};
 }
 
 sub is_content_success { # implement

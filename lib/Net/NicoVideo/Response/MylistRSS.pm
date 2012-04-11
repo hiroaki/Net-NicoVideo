@@ -1,27 +1,23 @@
-package Net::NicoVideo::Response::Mylist;
+package Net::NicoVideo::Response::MylistRSS;
 
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_09';
+$VERSION = '0.01_14';
 
 use base qw/Net::NicoVideo::Response/;
 
-use Net::NicoVideo::Content::Mylist;
+use Net::NicoVideo::Content::MylistRSS;
 use XML::FeedPP;
 
 sub parse {
     my $self = shift;
-
-    unless( $self->{_parsed_content} ){
-        $self->{_parsed_content} = XML::FeedPP->new($self->_component->decoded_content);
-    }
-    return $self->{_parsed_content};
+    $self->{_parsed_content} ||= XML::FeedPP->new($self->_component->decoded_content);
 }
 
 sub parsed_content { # implement
     my $self = shift;
-    $self->{_content_object} ||= Net::NicoVideo::Content::Mylist->new($self->parse);
+    $self->{_content_object} ||= Net::NicoVideo::Content::MylistRSS->new($self->parse);
 }
 
 sub is_content_success { # implement
@@ -35,6 +31,11 @@ sub is_content_success { # implement
 
 sub is_content_error { # implement
     not shift->is_content_success;
+}
+
+sub is_closed { # shortcut
+    my $self = shift;
+    $self->parsed_content->is_closed;
 }
 
 1;
