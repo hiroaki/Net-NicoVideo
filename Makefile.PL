@@ -5,6 +5,7 @@ WriteMakefile(
     'PREREQ_PM' => {
     CGI::Simple => 0,
     Class::Accessor::Fast => 0,
+    JSON => 2.01,
     LWP::UserAgent => 0,
     HTTP::Cookies => 0,
     HTTP::Request::Common => 0,

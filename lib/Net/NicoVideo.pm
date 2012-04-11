@@ -3,7 +3,7 @@ package Net::NicoVideo;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_11';
+$VERSION = '0.01_12';
 
 use base qw(Class::Accessor::Fast);
 
@@ -95,6 +95,36 @@ sub fetch_thread {
     croak "Invalid content as 'thread'"
         if( $res->is_content_error );
 
+    return $res->parsed_content;
+}
+
+sub fetch_mylistgroup {
+    my $self = shift;
+    my $ua  = $self->get_user_agent;
+    my $res = $ua->request_mylistgroup;
+
+    croak "Request 'request_mylistgroup' is error: @{[ $res->status_line ]}"
+        if( $res->is_error );
+
+    unless( $res->is_content_success ){
+        if( $res->is_error_noauth ){
+            my $reslogin = $ua->request_login($self->get_email, $self->get_password);
+            croak "Request 'request_login' is error: @{[ $reslogin->status_line ]}"
+                if( $reslogin->is_error );
+
+            $ua->login( $reslogin );
+            
+            # try again
+            $res = $ua->request_mylistgroup;
+            unless( $res->is_content_success ){
+                if( $res->is_error_noauth ){
+                    croak "Cannot login because specified account is something wrong";
+                }
+                croak "Invalid content as 'mylistgroup'";
+            }
+        }
+    }
+    
     return $res->parsed_content;
 }
 
@@ -305,6 +335,10 @@ Get an instance of Net::NicoVideo::Content::Thread for video_id.
 =head2 fetch_mylist(mylist_id)
 
 Get an instance of Net::NicoVideo::Content::Mylist for mylist_id.
+
+=head2 fetch_mylistgroup
+
+Get an instance of Net::NicoVideo::Content::MylistGroup for user own
 
 =head2 fetch_watch(video_id)
 
