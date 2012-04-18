@@ -1,6 +1,7 @@
 Changes
 lib/Net/NicoVideo.pm
 lib/Net/NicoVideo/Content/Flv.pm
+lib/Net/NicoVideo/Content/Mylist.pm
 lib/Net/NicoVideo/Content/MylistRSS.pm
 lib/Net/NicoVideo/Content/MylistGroup.pm
 lib/Net/NicoVideo/Content/Thread.pm

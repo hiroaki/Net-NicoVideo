@@ -1,10 +1,11 @@
 use strict;
 use warnings;
-use Test::More tests => 19;
+use Test::More tests => 20;
 
 BEGIN {
     use_ok 'Net::NicoVideo';
     use_ok 'Net::NicoVideo::Content::Flv';
+    use_ok 'Net::NicoVideo::Content::Mylist';
     use_ok 'Net::NicoVideo::Content::MylistRSS';
     use_ok 'Net::NicoVideo::Content::MylistGroup';
     use_ok 'Net::NicoVideo::Content::Thread';

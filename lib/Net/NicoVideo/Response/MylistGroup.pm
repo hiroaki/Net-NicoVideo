@@ -3,7 +3,7 @@ package Net::NicoVideo::Response::MylistGroup;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_13';
+$VERSION = '0.01_16';
 
 use base qw/Net::NicoVideo::Response/;
 
@@ -29,6 +29,9 @@ sub parsed_content { # implement
             if( $json->{error} );
 
         my @mylists = ();
+        if( ref( $json->{mylistgroup} ) ne 'ARRAY' ){
+            $json->{mylistgroup} = [$json->{mylistgroup}];
+        }
         for my $ml ( @{$json->{mylistgroup}} ){
             push @mylists, Net::NicoVideo::Content::Mylist->new($ml);
         }
