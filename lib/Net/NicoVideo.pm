@@ -3,7 +3,7 @@ package Net::NicoVideo;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_14';
+$VERSION = '0.01_15';
 
 use base qw(Class::Accessor::Fast);
 
@@ -23,10 +23,8 @@ delay
 
 sub get_user_agent {
     my $self = shift;
-    
     $self->user_agent(LWP::UserAgent->new)
         unless( $self->user_agent );
-
     Net::NicoVideo::UserAgent->new($self->user_agent);
 }
 
@@ -62,15 +60,8 @@ sub fetch_flv {
         if( $res->is_error );
 
     unless( $res->is_authflagged ){
-    
-        my $reslogin = $ua->request_login($self->get_email, $self->get_password);
-        croak "Request 'request_login' is error: @{[ $reslogin->status_line ]}"
-            if( $reslogin->is_error );
-
-        $ua->login( $reslogin );
-
         # try again
-        $res = $ua->request_flv($video_id);
+        $res = $self->through_login($ua)->request_flv($video_id);
         croak "Cannot login because specified account is something wrong"
             unless( $res->is_authflagged );
     }
@@ -108,14 +99,8 @@ sub fetch_mylistgroup {
 
     unless( $res->is_content_success ){
         if( $res->is_error_noauth ){
-            my $reslogin = $ua->request_login($self->get_email, $self->get_password);
-            croak "Request 'request_login' is error: @{[ $reslogin->status_line ]}"
-                if( $reslogin->is_error );
-
-            $ua->login( $reslogin );
-            
             # try again
-            $res = $ua->request_mylistgroup;
+            $res = $self->through_login($ua)->request_mylistgroup;
             unless( $res->is_content_success ){
                 if( $res->is_error_noauth ){
                     croak "Cannot login because specified account is something wrong";
@@ -140,14 +125,8 @@ sub fetch_mylistrss {
      and defined $self->get_email
      and defined $self->get_password
     ){
-        my $reslogin = $ua->request_login($self->get_email, $self->get_password);
-        croak "Request 'request_login' is error: @{[ $reslogin->status_line ]}"
-            if( $reslogin->is_error );
-
-        $ua->login( $reslogin );
-
         # try again
-        $res = $ua->request_mylistrss($mylist);
+        $res = $self->through_login($ua)->request_mylistrss($mylist);
         croak "Cannot login because specified account is something wrong"
             unless( $res->is_authflagged );
     }
@@ -167,15 +146,8 @@ sub fetch_watch {
         if( $res->is_error );
 
     unless( $res->is_authflagged ){
-
-        my $reslogin = $ua->request_login($self->get_email, $self->get_password);
-        croak "Request 'request_login' is error: @{[ $reslogin->status_line ]}"
-            if( $reslogin->is_error );
-
-        $ua->login( $reslogin );
-
         # try again
-        $res = $ua->request_watch($video_id);
+        $res = $self->through_login($ua)->request_watch($video_id);
         croak "Cannot login because specified account is something wrong"
             unless( $res->is_authflagged );
     }
@@ -201,6 +173,15 @@ sub fetch_video {
         if( $res->is_content_error );
 
     return $res->parsed_content;
+}
+
+sub through_login {
+    my $self    = shift;
+    my $ua      = shift;
+    my $res     = $ua->request_login($self->get_email, $self->get_password);
+    croak "Request 'request_login' is error: @{[ $res->status_line ]}"
+        if( $res->is_error );
+    $ua->login( $res ); # this returns $ua
 }
 
 sub download {
@@ -245,6 +226,12 @@ Net::NicoVideo - Perl Interface for accessing Nico Nico Douga
     
         $nnv->fetch_watch( $video_id );
         $nnv->fetch_video( $flv, $save_path );
+        
+        if( -s $save_path == $info->size_high ){
+            print "ok\n";
+        }else{
+            print "finished, but it may have broken.\n";
+        }
     }
 
 =head1 DESCRIPTION
@@ -362,6 +349,8 @@ in fact, it is called.
 An example, if it is a scalar value then it means that the file path to store contents.
 
 =head1 UTILITY METHOD
+
+=head2 through_login(ua)
 
 =head2 download(video_id, file)
 
