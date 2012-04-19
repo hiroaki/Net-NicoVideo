@@ -1,7 +1,9 @@
-** THIS IS ALPHA VERSION **
-
 NAME
     Net::NicoVideo - Perl Interface for accessing Nico Nico Douga
+
+VERSION
+    This is an alpha version. The API is still subject to change. Many
+    features have not been implemented yet.
 
 SYNOPSIS
         use Net::NicoVideo;
@@ -104,17 +106,6 @@ FETCH METHOD
   fetch_flv(video_id)
     Get an instance of Net::NicoVideo::Content::Flv for video_id.
 
-  fetch_thread(video_id, \%options)
-  fetch_thread(flv, \%options)
-    Get an instance of Net::NicoVideo::Content::Thread for video_id.
-
-  fetch_mylistrss(mylist)
-  fetch_mylistrss(mylist_id)
-    Get an instance of Net::NicoVideo::Content::MylistRSS for mylist.
-
-  fetch_mylistgroup([group_id])
-    Get an instance of Net::NicoVideo::Content::MylistGroup for user own
-
   fetch_watch(video_id)
     Get an instance of Net::NicoVideo::Content::Watch for video_id.
 
@@ -134,10 +125,53 @@ FETCH METHOD
     LWP::UserAgent, in fact, it is called. An example, if it is a scalar
     value then it means that the file path to store contents.
 
+  fetch_thread(video_id, \%options)
+  fetch_thread(flv, \%options)
+    Get an instance of Net::NicoVideo::Content::Thread for video_id.
+
+MYLIST METHOD
+  fetch_mylistrss(mylist)
+  fetch_mylistrss(mylist_id)
+    Get an instance of Net::NicoVideo::Content::MylistRSS for mylist.
+
+  fetch_mylistpage
+    Get an instance of Net::NicoVideo::Content::MylistPage for take a
+    "NicoAPI.token".
+
+  fetch_mylistgroup([group_id])
+    Get an instance of Net::NicoVideo::Content::MylistGroup for user own
+
+    This is equivalent to NicoAPI.MylistGroup#list or #get.
+
+  add_mylistgroup(mylist, token)
+    Add a mylist to mylistgroup.
+
+    This is equivalent to NicoAPI.MylistGroup#add
+
+  update_mylistgroup(mylist, token)
+    Update a mylist.
+
+    This is equivalent to NicoAPI.MylistGroup#update
+
+  remove_mylistgroup(mylist, token)
+    Remove a mylist.
+
+    This is equivalent to NicoAPI.MylistGroup#remove
+
 UTILITY METHOD
   through_login(ua)
+    This returns $ua which made it go via a login page:
+
+        $res = $ua->request_mylistrss($mylist);
+        unless( $res->is_authflagged ){             # if not logged-in
+            $ua = $self->through_login($ua);        # login
+            $res = $ua->request_mylistrss($mylist); # try again
+        }
+
+    The returning $ua is the same instance as what was given.
+
   download(video_id, file)
-    This is a shortcut to download video that is identified by video_id.
+    A shortcut to download video which is identified by video_id.
 
     For busy person, you can download a video by one liner like this:
 

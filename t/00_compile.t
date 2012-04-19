@@ -1,13 +1,14 @@
 use strict;
 use warnings;
-use Test::More tests => 20;
+use Test::More tests => 22;
 
 BEGIN {
     use_ok 'Net::NicoVideo';
     use_ok 'Net::NicoVideo::Content::Flv';
     use_ok 'Net::NicoVideo::Content::Mylist';
-    use_ok 'Net::NicoVideo::Content::MylistRSS';
     use_ok 'Net::NicoVideo::Content::MylistGroup';
+    use_ok 'Net::NicoVideo::Content::MylistPage';
+    use_ok 'Net::NicoVideo::Content::MylistRSS';
     use_ok 'Net::NicoVideo::Content::Thread';
     use_ok 'Net::NicoVideo::Content::ThumbInfo';
     use_ok 'Net::NicoVideo::Content::Video';
@@ -15,8 +16,9 @@ BEGIN {
     use_ok 'Net::NicoVideo::Decorator';
     use_ok 'Net::NicoVideo::Request';
     use_ok 'Net::NicoVideo::Response::Flv';
-    use_ok 'Net::NicoVideo::Response::MylistRSS';
     use_ok 'Net::NicoVideo::Response::MylistGroup';
+    use_ok 'Net::NicoVideo::Response::MylistPage';
+    use_ok 'Net::NicoVideo::Response::MylistRSS';
     use_ok 'Net::NicoVideo::Response::Thread';
     use_ok 'Net::NicoVideo::Response::ThumbInfo';
     use_ok 'Net::NicoVideo::Response::Video';

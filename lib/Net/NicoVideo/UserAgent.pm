@@ -3,7 +3,7 @@ package Net::NicoVideo::UserAgent;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_16';
+$VERSION = '0.01_17';
 
 use base qw(Net::NicoVideo::Decorator);
 
@@ -39,6 +39,15 @@ sub request_login {
                     ]));
 }
 
+sub request_get {
+    my ($self, $url, @args) = @_;
+    Net::NicoVideo::Response->new( $self->request((GET $url), @args) );
+}
+
+#-----------------------------------------------------------
+# fetch
+# 
+
 sub request_thumbinfo {
     my ($self, $video_id) = @_;
     my $url = 'http://ext.nicovideo.jp/api/getthumbinfo/'.$video_id;
@@ -52,16 +61,6 @@ sub request_flv {
     my $params = $video_id =~ /^nm/ ? ['as3' => 1] : [];
     require Net::NicoVideo::Response::Flv;
     Net::NicoVideo::Response::Flv->new( $self->request(POST $url, $params) );
-}
-
-sub request_thread {
-    my $self    = shift;
-    my $flv     = shift;
-    my $opts    = shift || {};
-    require Net::NicoVideo::Response::Thread;
-    Net::NicoVideo::Response::Thread->new( $self->request(POST $flv->ms,
-        Content => sprintf '<thread thread="%s" version="20061206" res_from="-%d"%s></thread>',
-                    $flv->thread_id, ($opts->{'chats'} || 250), ($opts->{'fork'} ? ' fork="1"' : '') ));
 }
 
 sub request_watch {
@@ -78,6 +77,20 @@ sub request_video {
     Net::NicoVideo::Response::Video->new( $self->request((GET $url), @args) );
 }
 
+sub request_thread {
+    my $self    = shift;
+    my $flv     = shift;
+    my $opts    = shift || {};
+    require Net::NicoVideo::Response::Thread;
+    Net::NicoVideo::Response::Thread->new( $self->request(POST $flv->ms,
+        Content => sprintf '<thread thread="%s" version="20061206" res_from="-%d"%s></thread>',
+                    $flv->thread_id, ($opts->{'chats'} || 250), ($opts->{'fork'} ? ' fork="1"' : '') ));
+}
+
+#-----------------------------------------------------------
+# mylist
+# 
+
 sub request_mylistrss {
     my ($self, $mylist) = @_; # mylist or mylist_id
     if( ref($mylist) and $mylist->isa('Net::NicoVideo::Content::Mylist')){
@@ -88,7 +101,16 @@ sub request_mylistrss {
     Net::NicoVideo::Response::MylistRSS->new( $self->request(GET $url) );
 }
 
-sub request_mylistgroup { # for user own
+# taking NicoAPI.token
+sub request_mylistpage {
+    my $self = shift;
+    my $url = 'http://www.nicovideo.jp/my/mylist';
+    require Net::NicoVideo::Response::MylistPage;
+    Net::NicoVideo::Response::MylistPage->new($self->request(GET $url));
+}
+
+# NicoAPI.MylistGroup #list or #get
+sub request_mylistgroup {
     my ($self, $mylist) = @_; # mylist or mylist_id (group_id)
     my $url = 'http://www.nicovideo.jp/api/mylistgroup/list';
     my $params;
@@ -102,9 +124,52 @@ sub request_mylistgroup { # for user own
         $self->request(POST $url, $params));
 }
 
-sub request_get {
-    my ($self, $url, @args) = @_;
-    Net::NicoVideo::Response->new( $self->request((GET $url), @args) );
+# NicoAPI.MylistGroup #add
+sub request_mylistgroup_add {
+    my ($self, $mylist, $token) = @_; # mylist
+    my $url = 'http://www.nicovideo.jp/api/mylistgroup/add';
+    my $params = [
+        token       => $token,
+        name        => $mylist->name,
+        description => $mylist->description,
+        public      => $mylist->public,
+        default_sort=> $mylist->default_sort,
+        icon_id     => $mylist->icon_id,
+        ];
+    require Net::NicoVideo::Response::MylistGroup;
+    Net::NicoVideo::Response::MylistGroup->new(
+        $self->request(POST $url, $params));
+}
+
+# NicoAPI.MylistGroup #update
+sub request_mylistgroup_update {
+    my ($self, $mylist, $token) = @_; # mylist or mylist_id (group_id)
+    my $url = 'http://www.nicovideo.jp/api/mylistgroup/update';
+    my $params = [
+        token       => $token,
+        group_id    => $mylist->id,
+        name        => $mylist->name,
+        description => $mylist->description,
+        public      => $mylist->public,
+        default_sort=> $mylist->default_sort,
+        icon_id     => $mylist->icon_id,
+        ];
+    require Net::NicoVideo::Response::MylistGroup;
+    Net::NicoVideo::Response::MylistGroup->new(
+        $self->request(POST $url, $params));
+}
+
+# NicoAPI.MylistGroup #remove
+sub request_mylistgroup_remove {
+    my ($self, $mylist, $token) = @_; # mylist or mylist_id (group_id)
+    my $url = 'http://www.nicovideo.jp/api/mylistgroup/delete';
+    my $params = [
+        token       => $token,
+        group_id    => $mylist->id,
+        ];
+    require Net::NicoVideo::Response::MylistGroup;
+    Net::NicoVideo::Response::MylistGroup->new(
+        $self->request(POST $url, $params));
 }
 
 1;

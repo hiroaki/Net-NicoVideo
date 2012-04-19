@@ -3,11 +3,12 @@ package Net::NicoVideo::Content::MylistGroup;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_13';
+$VERSION = '0.01_17';
 
 use base qw(Class::Accessor::Fast);
 use vars qw(@Members);
 @Members = qw(
+id
 mylistgroup
 error
 status

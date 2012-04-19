@@ -3,7 +3,7 @@ package Net::NicoVideo;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_16';
+$VERSION = '0.01_17';
 
 use base qw(Class::Accessor::Fast);
 
@@ -38,6 +38,28 @@ sub get_password {
     return defined $self->password ? $self->password : $ENV{NET_NICOVIDEO_PASSWORD};
 }
 
+sub through_login {
+    my $self    = shift;
+    my $ua      = shift;
+    my $res     = $ua->request_login($self->get_email, $self->get_password);
+    croak "Request 'request_login' is error: @{[ $res->status_line ]}"
+        if( $res->is_error );
+    $ua->login( $res ); # this returns $ua
+}
+
+sub download {
+    my ($self, $video_id, @args) = @_;
+    $self->fetch_watch($video_id);
+    my $delay = defined($self->delay) ? $self->delay : $DELAY_DEFAULT;
+    sleep $delay if( $delay );
+    $self->fetch_video($self->fetch_flv($video_id), @args);
+    return $self;
+}
+
+#-----------------------------------------------------------
+# fetch
+# 
+
 sub fetch_thumbinfo {
     my ($self, $video_id) = @_;
     my $res = $self->get_user_agent->request_thumbinfo($video_id);
@@ -67,71 +89,6 @@ sub fetch_flv {
     }
 
     croak "Invalid content as 'flv'"
-        if( $res->is_content_error );
-
-    return $res->parsed_content;
-}
-
-sub fetch_thread {
-    # $something accepts flv, or video_id
-    my ($self, $something, $opts) = @_;
-    if( $something and ! ref($something) ){
-        # it is a video_id
-        $something = $self->fetch_flv($something);
-    }
-    my $res = $self->get_user_agent->request_thread($something, $opts);
-    croak "Request 'fetch_thread' is error: @{[ $res->status_line ]}"
-        if( $res->is_error );
-
-    croak "Invalid content as 'thread'"
-        if( $res->is_content_error );
-
-    return $res->parsed_content;
-}
-
-sub fetch_mylistgroup {
-    my ($self, $group_id) = @_;
-    my $ua  = $self->get_user_agent;
-    my $res = $ua->request_mylistgroup($group_id);
-
-    croak "Request 'request_mylistgroup' is error: @{[ $res->status_line ]}"
-        if( $res->is_error );
-
-    unless( $res->is_content_success ){
-        if( $res->is_error_noauth ){
-            # try again
-            $res = $self->through_login($ua)->request_mylistgroup($group_id);
-            unless( $res->is_content_success ){
-                if( $res->is_error_noauth ){
-                    croak "Cannot login because specified account is something wrong";
-                }
-                croak "Invalid content as 'mylistgroup'";
-            }
-        }
-    }
-    
-    return $res->parsed_content;
-}
-
-sub fetch_mylistrss {
-    my ($self, $mylist) = @_;
-    my $ua  = $self->get_user_agent;
-    my $res = $ua->request_mylistrss($mylist);
-
-    croak "Request 'request_mylistrss' is error: @{[ $res->status_line ]}"
-        if( $res->is_error and $res->code ne '403' );
-
-    if( ( ! $res->is_authflagged or $res->is_closed ) 
-     and defined $self->get_email
-     and defined $self->get_password
-    ){
-        # try again
-        $res = $self->through_login($ua)->request_mylistrss($mylist);
-        croak "Cannot login because specified account is something wrong"
-            unless( $res->is_authflagged );
-    }
-
-    croak "Invalid content as 'mylist'"
         if( $res->is_content_error );
 
     return $res->parsed_content;
@@ -175,22 +132,143 @@ sub fetch_video {
     return $res->parsed_content;
 }
 
-sub through_login {
-    my $self    = shift;
-    my $ua      = shift;
-    my $res     = $ua->request_login($self->get_email, $self->get_password);
-    croak "Request 'request_login' is error: @{[ $res->status_line ]}"
+sub fetch_thread {
+    # $something accepts flv, or video_id
+    my ($self, $something, $opts) = @_;
+    if( $something and ! ref($something) ){
+        # it is a video_id
+        $something = $self->fetch_flv($something);
+    }
+    my $res = $self->get_user_agent->request_thread($something, $opts);
+    croak "Request 'fetch_thread' is error: @{[ $res->status_line ]}"
         if( $res->is_error );
-    $ua->login( $res ); # this returns $ua
+
+    croak "Invalid content as 'thread'"
+        if( $res->is_content_error );
+
+    return $res->parsed_content;
 }
 
-sub download {
-    my ($self, $video_id, @args) = @_;
-    $self->fetch_watch($video_id);
-    my $delay = defined($self->delay) ? $self->delay : $DELAY_DEFAULT;
-    sleep $delay if( $delay );
-    $self->fetch_video($self->fetch_flv($video_id), @args);
-    return $self;
+#-----------------------------------------------------------
+# mylist
+# 
+
+sub fetch_mylistrss {
+    my ($self, $mylist) = @_;
+    my $ua  = $self->get_user_agent;
+    my $res = $ua->request_mylistrss($mylist);
+
+    croak "Request 'request_mylistrss' is error: @{[ $res->status_line ]}"
+        if( $res->is_error and $res->code ne '403' );
+
+    if( ( ! $res->is_authflagged or $res->is_closed ) 
+     and defined $self->get_email
+     and defined $self->get_password
+    ){
+        # try again
+        $res = $self->through_login($ua)->request_mylistrss($mylist);
+        croak "Cannot login because specified account is something wrong"
+            unless( $res->is_authflagged );
+    }
+
+    croak "Invalid content as 'mylist'"
+        if( $res->is_content_error );
+
+    return $res->parsed_content;
+}
+
+# taking NicoAPI.token
+sub fetch_mylistpage {
+    my ($self) = @_;
+    my $ua  = $self->get_user_agent;
+    my $res = $ua->request_mylistpage;
+
+    croak "Request 'request_mylistpage' is error: @{[ $res->status_line ]}"
+        if( $res->is_error );
+
+    unless( $res->is_authflagged ){
+        # try again
+        $res = $self->through_login($ua)->request_mylistpage;
+        croak "Cannot login because specified account is something wrong"
+            unless( $res->is_authflagged );
+    }
+
+    croak "Invalid content as 'mylistpage'"
+        if( $res->is_content_error );
+
+    return $res->parsed_content;
+}
+
+# NicoAPI.MylistGroup #list or #get
+sub fetch_mylistgroup {
+    my ($self, $group_id) = @_;
+    my $ua  = $self->get_user_agent;
+    my $res = $ua->request_mylistgroup($group_id);
+
+    croak "Request 'request_mylistgroup' is error: @{[ $res->status_line ]}"
+        if( $res->is_error );
+
+    unless( $res->is_content_success ){
+        if( $res->is_error_noauth ){
+            # try again
+            $res = $self->through_login($ua)->request_mylistgroup($group_id);
+            unless( $res->is_content_success ){
+                if( $res->is_error_noauth ){
+                    croak "Cannot login because specified account is something wrong";
+                }
+                croak "Invalid content as 'mylistgroup'";
+            }
+        }
+    }
+    
+    return $res->parsed_content;
+}
+
+# NicoAPI.MylistGroup #add
+sub add_mylistgroup {
+    my ($self, $mylist, $token) = @_;
+    my $ua  = $self->get_user_agent;
+
+    $token = $self->fetch_mylistpage->token
+        unless( $token );
+
+    my $res = $ua->request_mylistgroup_add($mylist, $token);
+
+    croak "Request 'request_mylistgroup_add' is error: @{[ $res->status_line ]}"
+        if( $res->is_error );
+
+    return $res->parsed_content;
+}
+
+# NicoAPI.MylistGroup #update
+sub update_mylistgroup {
+    my ($self, $mylist, $token) = @_;
+    my $ua  = $self->get_user_agent;
+
+    $token = $self->fetch_mylistpage->token
+        unless( $token );
+
+    my $res = $ua->request_mylistgroup_update($mylist, $token);
+
+    croak "Request 'request_mylistgroup_update' is error: @{[ $res->status_line ]}"
+        if( $res->is_error );
+
+    return $res->parsed_content;
+}
+
+# NicoAPI.MylistGroup #remove
+sub remove_mylistgroup {
+    my ($self, $mylist, $token) = @_;
+    my $ua  = $self->get_user_agent;
+
+    $token = $self->fetch_mylistpage->token
+        unless( $token );
+
+    my $res = $ua->request_mylistgroup_remove($mylist, $token);
+    croak "Request 'request_mylistgroup_remove' is error: @{[ $res->status_line ]}"
+        if( $res->is_error );
+
+    return $res->parsed_content;
 }
 
 1;
@@ -202,6 +280,11 @@ __END__
 =head1 NAME
 
 Net::NicoVideo - Perl Interface for accessing Nico Nico Douga
+
+=head1 VERSION
+
+This is an alpha version.
+The API is still subject to change. Many features have not been implemented yet.
 
 =head1 SYNOPSIS
 
@@ -315,20 +398,6 @@ Get an instance of Net::NicoVideo::Content::ThumbInfo for video_id.
 
 Get an instance of Net::NicoVideo::Content::Flv for video_id.
 
-=head2 fetch_thread(video_id, \%options)
-=head2 fetch_thread(flv, \%options)
-
-Get an instance of Net::NicoVideo::Content::Thread for video_id.
-
-=head2 fetch_mylistrss(mylist)
-=head2 fetch_mylistrss(mylist_id)
-
-Get an instance of Net::NicoVideo::Content::MylistRSS for mylist.
-
-=head2 fetch_mylistgroup([group_id])
-
-Get an instance of Net::NicoVideo::Content::MylistGroup for user own
-
 =head2 fetch_watch(video_id)
 
 Get an instance of Net::NicoVideo::Content::Watch for video_id.
@@ -348,13 +417,63 @@ The second parameter, it works like as request() method of LWP::UserAgent,
 in fact, it is called.
 An example, if it is a scalar value then it means that the file path to store contents.
 
+=head2 fetch_thread(video_id, \%options)
+=head2 fetch_thread(flv, \%options)
+
+Get an instance of Net::NicoVideo::Content::Thread for video_id.
+
+=head1 MYLIST METHOD
+
+=head2 fetch_mylistrss(mylist)
+=head2 fetch_mylistrss(mylist_id)
+
+Get an instance of Net::NicoVideo::Content::MylistRSS for mylist.
+
+=head2 fetch_mylistpage
+
+Get an instance of Net::NicoVideo::Content::MylistPage for take a "NicoAPI.token".
+
+=head2 fetch_mylistgroup([group_id])
+
+Get an instance of Net::NicoVideo::Content::MylistGroup for user own
+
+This is equivalent to NicoAPI.MylistGroup#list or #get.
+
+=head2 add_mylistgroup(mylist, token)
+
+Add a mylist to mylistgroup.
+
+This is equivalent to NicoAPI.MylistGroup#add
+
+=head2 update_mylistgroup(mylist, token)
+
+Update a mylist.
+
+This is equivalent to NicoAPI.MylistGroup#update
+
+=head2 remove_mylistgroup(mylist, token)
+
+Remove a mylist.
+
+This is equivalent to NicoAPI.MylistGroup#remove
+
 =head1 UTILITY METHOD
 
 =head2 through_login(ua)
 
+This returns $ua which made it go via a login page:
+
+    $res = $ua->request_mylistrss($mylist);
+    unless( $res->is_authflagged ){             # if not logged-in
+        $ua = $self->through_login($ua);        # login
+        $res = $ua->request_mylistrss($mylist); # try again
+    }
+
+The returning $ua is the same instance as what was given.
+
 =head2 download(video_id, file)
 
-This is a shortcut to download video that is identified by video_id.
+A shortcut to download video which is identified by video_id.
 
 For busy person, you can download a video by one liner like this:
 
