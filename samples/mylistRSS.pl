@@ -1,0 +1,20 @@
+#!/usr/bin/env perl
+
+use 5.12.0;
+use warnings;
+use Net::NicoVideo;
+use Data::Dumper;
+local $Data::Dumper::Indent = 1;
+binmode(STDOUT, ":utf8");
+binmode(STDERR, ":utf8");
+
+my $mylist_id = $ARGV[0] or die "usage: $0 mylist_id\n";
+
+my $rss = Net::NicoVideo->new->fetch_mylistrss($mylist_id);
+say Data::Dumper::Dumper([$rss]);
+say "-----";
+say "title      : ". $rss->title;
+say "description: ". $rss->description;
+
+1;
+__END__
