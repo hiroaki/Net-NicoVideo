@@ -384,6 +384,8 @@ sub copy_mylist {
 __END__
 
 
+=encoding utf-8
+
 =pod
 
 =head1 NAME
@@ -642,7 +644,7 @@ Get an instance of Net::NicoVideo::Content::Thread for video_id.
 
 第二引数のハッシュ・リファレンスはオプションで、次のキーと値のペアを受け取ります。
 
-=over4
+=over 4
 
 =item "chats" => number
 
