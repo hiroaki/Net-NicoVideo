@@ -3,7 +3,7 @@ package Net::NicoVideo::UserAgent;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_17';
+$VERSION = '0.01_18';
 
 use base qw(Net::NicoVideo::Decorator);
 
@@ -88,7 +88,7 @@ sub request_thread {
 }
 
 #-----------------------------------------------------------
-# mylist
+# Mylist RSS
 # 
 
 sub request_mylistrss {
@@ -101,6 +101,10 @@ sub request_mylistrss {
     Net::NicoVideo::Response::MylistRSS->new( $self->request(GET $url) );
 }
 
+#-----------------------------------------------------------
+# Mylist Base
+# 
+
 # taking NicoAPI.token
 sub request_mylistpage {
     my $self = shift;
@@ -109,18 +113,30 @@ sub request_mylistpage {
     Net::NicoVideo::Response::MylistPage->new($self->request(GET $url));
 }
 
+# taking NicoAPI.token to update Mylist, item_type and item_id for video_id
+sub request_mylistitem {
+    my ($self, $video_id) = @_;
+    my $url = 'http://www.nicovideo.jp/mylist_add/video/'.$video_id;
+    require Net::NicoVideo::Response::MylistItem;
+    Net::NicoVideo::Response::MylistItem->new($self->request(GET $url));
+}
+
+#-----------------------------------------------------------
+# NicoAPI.MylistGroup
+# 
+
 # NicoAPI.MylistGroup #list or #get
 sub request_mylistgroup {
     my ($self, $mylist) = @_; # mylist or mylist_id (group_id)
     my $url = 'http://www.nicovideo.jp/api/mylistgroup/list';
     my $params;
     if( defined $mylist ){
-        $mylist = $mylist->id if( ref($mylist) and $mylist->isa('Net::NicoVideo::Content::Mylist'));
+        $mylist = $mylist->id if( ref($mylist) and $mylist->isa('Net::NicoVideo::Content::NicoAPI::MylistGroup'));
         $url = 'http://www.nicovideo.jp/api/mylistgroup/get';
         $params = [ group_id => $mylist ];
     }
-    require Net::NicoVideo::Response::MylistGroup;
-    Net::NicoVideo::Response::MylistGroup->new(
+    require Net::NicoVideo::Response::NicoAPI;
+    Net::NicoVideo::Response::NicoAPI->new(
         $self->request(POST $url, $params));
 }
 
@@ -136,8 +152,8 @@ sub request_mylistgroup_add {
         default_sort=> $mylist->default_sort,
         icon_id     => $mylist->icon_id,
         ];
-    require Net::NicoVideo::Response::MylistGroup;
-    Net::NicoVideo::Response::MylistGroup->new(
+    require Net::NicoVideo::Response::NicoAPI;
+    Net::NicoVideo::Response::NicoAPI->new(
         $self->request(POST $url, $params));
 }
 
@@ -154,8 +170,8 @@ sub request_mylistgroup_update {
         default_sort=> $mylist->default_sort,
         icon_id     => $mylist->icon_id,
         ];
-    require Net::NicoVideo::Response::MylistGroup;
-    Net::NicoVideo::Response::MylistGroup->new(
+    require Net::NicoVideo::Response::NicoAPI;
+    Net::NicoVideo::Response::NicoAPI->new(
         $self->request(POST $url, $params));
 }
 
@@ -167,8 +183,134 @@ sub request_mylistgroup_remove {
         token       => $token,
         group_id    => $mylist->id,
         ];
-    require Net::NicoVideo::Response::MylistGroup;
-    Net::NicoVideo::Response::MylistGroup->new(
+    require Net::NicoVideo::Response::NicoAPI;
+    Net::NicoVideo::Response::NicoAPI->new(
+        $self->request(POST $url, $params));
+}
+
+#-----------------------------------------------------------
+# NicoAPI.Mylist
+# 
+
+sub make_id_list {
+    my $self        = shift;
+    my $item_type   = shift;
+    my $item_id     = shift;
+    my @id_list = ('id_list['.$item_type.'][]' => $item_id);
+    return wantarray ? @id_list : \@id_list;
+}
+
+# NicoAPI.Mylist #list
+sub request_mylist_list {
+    my ($self, $mylist) = @_; # mylist or mylist_id (group_id)
+    $mylist = $mylist->id if( ref($mylist) and $mylist->isa('Net::NicoVideo::Content::NicoAPI::MylistGroup'));
+    my $url = 'http://www.nicovideo.jp/api/mylist/list';
+    require Net::NicoVideo::Response::NicoAPI;
+    Net::NicoVideo::Response::NicoAPI->new(
+        $self->request(POST $url, [group_id => $mylist]));
+}
+
+# NicoAPI.Mylist #add
+sub request_mylist_add {
+    my ($self, $mylist, $item, $token) = @_; # mylist or mylist_id (group_id)
+    $mylist = $mylist->id if( ref($mylist) and $mylist->isa('Net::NicoVideo::Content::NicoAPI::MylistGroup'));
+    my $url = 'http://www.nicovideo.jp/api/mylist/add';
+    my $params = [
+        token       => $token,
+        group_id    => $mylist,
+        item_type   => $item->item_type,
+        item_id     => $item->item_id,
+        description => $item->description,
+        ];
+    require Net::NicoVideo::Response::NicoAPI;
+    Net::NicoVideo::Response::NicoAPI->new(
+        $self->request(POST $url, $params));
+}
+
+# NicoAPI.Mylist #update
+sub request_mylist_update {
+    my ($self, $mylist, $item, $token) = @_; # mylist or mylist_id (group_id)
+    $mylist = $mylist->id if( ref($mylist) and $mylist->isa('Net::NicoVideo::Content::NicoAPI::MylistGroup'));
+    my $url = 'http://www.nicovideo.jp/api/mylist/update';
+    my $params = [
+        token       => $token,
+        group_id    => $mylist,
+        item_type   => $item->item_type,
+        item_id     => $item->item_id,
+        description => $item->description,
+        ];
+    require Net::NicoVideo::Response::NicoAPI;
+    Net::NicoVideo::Response::NicoAPI->new(
+        $self->request(POST $url, $params));
+}
+
+# NicoAPI.Mylist #remove
+sub request_mylist_remove {
+    my ($self, $mylist, $item, $token) = @_; # mylist or mylist_id (group_id)
+    my $id_list = $self->make_id_list($item->item_type, $item->item_id);
+    $self->request_mylist_remove_multi($mylist, $id_list, $token);
+}
+
+# NicoAPI.Mylist #removeMulti
+sub request_mylist_remove_multi {
+    my ($self, $mylist, $id_list, $token) = @_; # mylist or mylist_id (group_id)
+    $mylist = $mylist->id if( ref($mylist) and $mylist->isa('Net::NicoVideo::Content::NicoAPI::MylistGroup'));
+    my $url = 'http://www.nicovideo.jp/api/mylist/delete';
+    my $params = $id_list;
+    push @$params, (
+        token       => $token,
+        group_id    => $mylist,
+        );
+    require Net::NicoVideo::Response::NicoAPI;
+    Net::NicoVideo::Response::NicoAPI->new(
+        $self->request(POST $url, $params));
+}
+
+# NicoAPI.Mylist #move
+sub request_mylist_move {
+    my ($self, $mylist, $target, $item, $token) = @_; # mylist or mylist_id (group_id)
+    my $id_list = $self->make_id_list($item->item_type, $item->item_id);
+    $self->request_mylist_move_multi($mylist, $target, $id_list, $token);
+}
+
+# NicoAPI.Mylist #moveMulti
+sub request_mylist_move_multi {
+    my ($self, $mylist, $target, $id_list, $token) = @_; # mylist or mylist_id (group_id)
+    $mylist = $mylist->id if( ref($mylist) and $mylist->isa('Net::NicoVideo::Content::NicoAPI::MylistGroup'));
+    $target = $target->id if( ref($target) and $target->isa('Net::NicoVideo::Content::NicoAPI::MylistGroup'));
+    my $url = 'http://www.nicovideo.jp/api/mylist/move';
+    my $params = $id_list;
+    push @$params, (
+        token           => $token,
+        group_id        => $mylist,
+        target_group_id => $target,
+        );
+    require Net::NicoVideo::Response::NicoAPI;
+    Net::NicoVideo::Response::NicoAPI->new(
+        $self->request(POST $url, $params));
+}
+
+# NicoAPI.Mylist #copy
+sub request_mylist_copy {
+    my ($self, $mylist, $target, $item, $token) = @_; # mylist or mylist_id (group_id)
+    my $id_list = $self->make_id_list($item->item_type, $item->item_id);
+    $self->request_mylist_copy_multi($mylist, $target, $id_list, $token);
+}
+
+# NicoAPI.Mylist #copyMulti
+sub request_mylist_copy_multi {
+    my ($self, $mylist, $target, $id_list, $token) = @_; # mylist or mylist_id (group_id)
+    $mylist = $mylist->id if( ref($mylist) and $mylist->isa('Net::NicoVideo::Content::NicoAPI::MylistGroup'));
+    $target = $target->id if( ref($target) and $target->isa('Net::NicoVideo::Content::NicoAPI::MylistGroup'));
+    my $url = 'http://www.nicovideo.jp/api/mylist/copy';
+    my $params = $id_list;
+    push @$params, (
+        token           => $token,
+        group_id        => $mylist,
+        target_group_id => $target,
+        );
+    require Net::NicoVideo::Response::NicoAPI;
+    Net::NicoVideo::Response::NicoAPI->new(
         $self->request(POST $url, $params));
 }
 

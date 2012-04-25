@@ -7,6 +7,7 @@ WriteMakefile(
     Class::Accessor::Fast => 0,
     JSON => 2.01,
     LWP::UserAgent => 0,
+    HTML::Parser => 3.00,
     HTTP::Cookies => 0,
     HTTP::Request::Common => 0,
     Test::More => 0.32,
