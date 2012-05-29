@@ -9,8 +9,8 @@ local $Data::Dumper::Indent = 1;
 binmode(STDOUT, ":utf8");
 binmode(STDERR, ":utf8");
 
-my $group_id    = $ARGV[0] or die "usage: $0 group_id item_id\n";
-my $video_id    = $ARGV[1] or die "usage: $0 group_id item_id\n";
+my $group_id    = $ARGV[0] or die "usage: $0 group_id video_id\n";
+my $video_id    = $ARGV[1] or die "usage: $0 group_id video_id\n";
 
 my $nnv = Net::NicoVideo->new;
 my $mylistitem = $nnv->fetch_mylistitem($video_id);

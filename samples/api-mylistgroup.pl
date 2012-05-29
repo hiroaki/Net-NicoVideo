@@ -4,6 +4,8 @@ use 5.12.0;
 use warnings;
 use Net::NicoVideo;
 use Net::NicoVideo::Content::NicoAPI;
+binmode(STDOUT, ":utf8");
+binmode(STDERR, ":utf8");
 
 my $group_id = $ARGV[0];
 
