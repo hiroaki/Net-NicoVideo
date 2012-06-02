@@ -7,10 +7,8 @@ use Net::NicoVideo::Content::NicoAPI;
 binmode(STDOUT, ":utf8");
 binmode(STDERR, ":utf8");
 
-my $group_id = $ARGV[0];
-
 my $nnv = Net::NicoVideo->new;
-my $nico = $nnv->fetch_mylistgroup($group_id);
+my $nico = $nnv->list_mylistgroup;
 
 say 'status: '. $nico->status;
 unless( $nico->is_status_ok ){
@@ -19,7 +17,7 @@ unless( $nico->is_status_ok ){
     for my $mylist ( @{$nico->mylistgroup} ){
     
         say '-----';
-        for my $mem ( Net::NicoVideo::Content::NicoAPI::MylistGroup::members ){
+        for my $mem ( Net::NicoVideo::Content::NicoAPI::MylistGroup->members ){
             say "$mem\t". ($mylist->$mem() // '(undef)');
         }
     }

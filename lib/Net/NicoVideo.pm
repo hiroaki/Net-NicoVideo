@@ -3,7 +3,7 @@ package Net::NicoVideo;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_18';
+$VERSION = '0.01_19';
 
 use base qw(Class::Accessor::Fast);
 
@@ -36,6 +36,17 @@ sub get_email {
 sub get_password {
     my $self = shift;
     return defined $self->password ? $self->password : $ENV{NET_NICOVIDEO_PASSWORD};
+}
+
+sub get_delay {
+    my $self = shift;
+    if( defined $self->delay ){
+        return $self->delay;
+    }elsif( $ENV{NET_NICOVIDEO_DELAY} ){
+        return $ENV{NET_NICOVIDEO_DELAY};
+    }else{
+        return $DELAY_DEFAULT;
+    }
 }
 
 sub through_login {
@@ -153,12 +164,12 @@ sub fetch_thread {
 # Mylist RSS
 # 
 
-sub fetch_mylistrss {
+sub fetch_mylist_rss {
     my ($self, $mylist) = @_;
     my $ua  = $self->get_user_agent;
-    my $res = $ua->request_mylistrss($mylist);
+    my $res = $ua->request_mylist_rss($mylist);
 
-    croak "Request 'request_mylistrss' is error: @{[ $res->status_line ]}"
+    croak "Request 'request_mylist_rss' is error: @{[ $res->status_line ]}"
         if( $res->is_error and $res->code ne '403' );
 
     if( ( ! $res->is_authflagged or $res->is_closed ) 
@@ -166,7 +177,7 @@ sub fetch_mylistrss {
      and defined $self->get_password
     ){
         # try again
-        $res = $self->through_login($ua)->request_mylistrss($mylist);
+        $res = $self->through_login($ua)->request_mylist_rss($mylist);
         croak "Cannot login because specified account is something wrong"
             unless( $res->is_authflagged );
     }
@@ -182,44 +193,44 @@ sub fetch_mylistrss {
 # 
 
 # taking NicoAPI.token
-sub fetch_mylistpage {
+sub fetch_mylist_page {
     my ($self) = @_;
     my $ua  = $self->get_user_agent;
-    my $res = $ua->request_mylistpage;
+    my $res = $ua->request_mylist_page;
 
-    croak "Request 'request_mylistpage' is error: @{[ $res->status_line ]}"
+    croak "Request 'request_mylist_page' is error: @{[ $res->status_line ]}"
         if( $res->is_error );
 
     unless( $res->is_authflagged ){
         # try again
-        $res = $self->through_login($ua)->request_mylistpage;
+        $res = $self->through_login($ua)->request_mylist_page;
         croak "Cannot login because specified account is something wrong"
             unless( $res->is_authflagged );
     }
 
-    croak "Invalid content as 'mylistpage'"
+    croak "Invalid content as 'mylist_page'"
         if( $res->is_content_error );
 
     return $res->parsed_content;
 }
 
 # taking NicoAPI.token to update Mylist, item_type and item_id for video_id
-sub fetch_mylistitem {
+sub fetch_mylist_item {
     my ($self, $video_id) = @_;
     my $ua  = $self->get_user_agent;
-    my $res = $ua->request_mylistitem($video_id);
+    my $res = $ua->request_mylist_item($video_id);
 
-    croak "Request 'request_mylistitem' is error: @{[ $res->status_line ]}"
+    croak "Request 'request_mylist_item' is error: @{[ $res->status_line ]}"
         if( $res->is_error );
 
     unless( $res->is_authflagged ){
         # try again
-        $res = $self->through_login($ua)->request_mylistitem($video_id);
+        $res = $self->through_login($ua)->request_mylist_item($video_id);
         croak "Cannot login because specified account is something wrong"
             unless( $res->is_authflagged );
     }
 
-    croak "Invalid content as 'mylistitem'"
+    croak "Invalid content as 'mylist_item'"
         if( $res->is_content_error );
 
     return $res->parsed_content;
@@ -229,19 +240,44 @@ sub fetch_mylistitem {
 # NicoAPI.MylistGroup
 # 
 
-# NicoAPI.MylistGroup #list or #get
-sub fetch_mylistgroup {
-    my ($self, $group_id) = @_;
+# NicoAPI.MylistGroup #list
+sub list_mylistgroup {
+    my ($self) = @_;
     my $ua  = $self->get_user_agent;
-    my $res = $ua->request_mylistgroup($group_id);
+    my $res = $ua->request_mylistgroup_list;
 
-    croak "Request 'request_mylistgroup' is error: @{[ $res->status_line ]}"
+    croak "Request 'request_mylistgroup_list' is error: @{[ $res->status_line ]}"
         if( $res->is_error );
 
     unless( $res->is_content_success ){
         if( $res->is_error_noauth ){
             # try again
-            $res = $self->through_login($ua)->request_mylistgroup($group_id);
+            $res = $self->through_login($ua)->request_mylistgroup_list;
+            unless( $res->is_content_success ){
+                if( $res->is_error_noauth ){
+                    croak "Cannot login because specified account is something wrong";
+                }
+                croak "Invalid content as 'mylistgroup'";
+            }
+        }
+    }
+    
+    return $res->parsed_content;
+}
+
+# NicoAPI.MylistGroup #get
+sub get_mylistgroup {
+    my ($self, $group_id) = @_;
+    my $ua  = $self->get_user_agent;
+    my $res = $ua->request_mylistgroup_get($group_id);
+
+    croak "Request 'request_mylistgroup_get' is error: @{[ $res->status_line ]}"
+        if( $res->is_error );
+
+    unless( $res->is_content_success ){
+        if( $res->is_error_noauth ){
+            # try again
+            $res = $self->through_login($ua)->request_mylistgroup_get($group_id);
             unless( $res->is_content_success ){
                 if( $res->is_error_noauth ){
                     croak "Cannot login because specified account is something wrong";
@@ -258,7 +294,7 @@ sub fetch_mylistgroup {
 sub add_mylistgroup {
     my ($self, $mylist, $token) = @_;
     my $ua  = $self->get_user_agent;
-    $token = $self->fetch_mylistpage->token
+    $token = $self->fetch_mylist_page->token
         unless( $token );
     my $res = $ua->request_mylistgroup_add($mylist, $token);
     croak "Request 'request_mylistgroup_add' is error: @{[ $res->status_line ]}"
@@ -270,7 +306,7 @@ sub add_mylistgroup {
 sub update_mylistgroup {
     my ($self, $mylist, $token) = @_;
     my $ua  = $self->get_user_agent;
-    $token = $self->fetch_mylistpage->token
+    $token = $self->fetch_mylist_page->token
         unless( $token );
     my $res = $ua->request_mylistgroup_update($mylist, $token);
     croak "Request 'request_mylistgroup_update' is error: @{[ $res->status_line ]}"
@@ -282,23 +318,25 @@ sub update_mylistgroup {
 sub remove_mylistgroup {
     my ($self, $mylist, $token) = @_;
     my $ua  = $self->get_user_agent;
-    $token = $self->fetch_mylistpage->token
+    $token = $self->fetch_mylist_page->token
         unless( $token );
-    my $res = $ua->request_mylistgroup_remove($mylist, $token);
-    croak "Request 'request_mylistgroup_remove' is error: @{[ $res->status_line ]}"
+    my $res = $ua->request_mylistgroup_delete($mylist, $token);
+    croak "Request 'request_mylistgroup_delete' is error: @{[ $res->status_line ]}"
         if( $res->is_error );
     return $res->parsed_content;
 }
+
+*delete_mylistgroup = *remove_mylistgroup;
 
 #-----------------------------------------------------------
 # NicoAPI.Mylist
 # 
 
 # NicoAPI.Mylist #list
-sub fetch_mylist {
-    my ($self, $group_id) = @_;
+sub list_mylist {
+    my ($self, $group) = @_; # mylistgroup or group_id
     my $ua  = $self->get_user_agent;
-    my $res = $ua->request_mylist_list($group_id);
+    my $res = $ua->request_mylist_list($group);
 
     croak "Request 'request_mylist_list' is error: @{[ $res->status_line ]}"
         if( $res->is_error );
@@ -306,7 +344,7 @@ sub fetch_mylist {
     unless( $res->is_content_success ){
         if( $res->is_error_noauth ){
             # try again
-            $res = $self->through_login($ua)->request_mylist_list($group_id);
+            $res = $self->through_login($ua)->request_mylist_list($group);
             unless( $res->is_content_success ){
                 if( $res->is_error_noauth ){
                     croak "Cannot login because specified account is something wrong";
@@ -322,11 +360,11 @@ sub fetch_mylist {
 
 # NicoAPI.Mylist #add
 sub add_mylist {
-    my ($self, $mylist, $item, $token) = @_;
+    my ($self, $group, $item, $token) = @_;
     my $ua = $self->get_user_agent;
-    $token = $self->fetch_mylistpage->token
+    $token = $self->fetch_mylist_page->token
         unless( $token );
-    my $res = $ua->request_mylist_add($mylist, $item, $token);
+    my $res = $ua->request_mylist_add($group, $item, $token);
     croak "Request 'request_mylist_add' is error: @{[ $res->status_line ]}"
         if( $res->is_error );
     return $res->parsed_content;
@@ -334,11 +372,11 @@ sub add_mylist {
 
 # NicoAPI.Mylist #update
 sub update_mylist {
-    my ($self, $mylist, $item, $token) = @_;
+    my ($self, $group, $item, $token) = @_;
     my $ua = $self->get_user_agent;
-    $token = $self->fetch_mylistpage->token
+    $token = $self->fetch_mylist_page->token
         unless( $token );
-    my $res = $ua->request_mylist_update($mylist, $item, $token);
+    my $res = $ua->request_mylist_update($group, $item, $token);
     croak "Request 'request_mylist_update' is error: @{[ $res->status_line ]}"
         if( $res->is_error );
     return $res->parsed_content;
@@ -346,23 +384,25 @@ sub update_mylist {
 
 # NicoAPI.Mylist #remove
 sub remove_mylist {
-    my ($self, $mylist, $item, $token) = @_;
+    my ($self, $group, $item, $token) = @_;
     my $ua  = $self->get_user_agent;
-    $token = $self->fetch_mylistpage->token
+    $token = $self->fetch_mylist_page->token
         unless( $token );
-    my $res = $ua->request_mylist_remove($mylist, $item, $token);
+    my $res = $ua->request_mylist_remove($group, $item, $token);
     croak "Request 'request_mylist_remove' is error: @{[ $res->status_line ]}"
         if( $res->is_error );
     return $res->parsed_content;
 }
 
+*delete_mylist = *remove_mylist;
+
 # NicoAPI.Mylist #move
 sub move_mylist {
-    my ($self, $mylist, $target, $item, $token) = @_;
+    my ($self, $group, $target, $item, $token) = @_;
     my $ua  = $self->get_user_agent;
-    $token = $self->fetch_mylistpage->token
+    $token = $self->fetch_mylist_page->token
         unless( $token );
-    my $res = $ua->request_mylist_move($mylist, $target, $item, $token);
+    my $res = $ua->request_mylist_move($group, $target, $item, $token);
     croak "Request 'request_mylist_move' is error: @{[ $res->status_line ]}"
         if( $res->is_error );
     return $res->parsed_content;
@@ -370,11 +410,11 @@ sub move_mylist {
 
 # NicoAPI.Mylist #copy
 sub copy_mylist {
-    my ($self, $mylist, $target, $item, $token) = @_;
+    my ($self, $group, $target, $item, $token) = @_;
     my $ua  = $self->get_user_agent;
-    $token = $self->fetch_mylistpage->token
+    $token = $self->fetch_mylist_page->token
         unless( $token );
-    my $res = $ua->request_mylist_copy($mylist, $target, $item, $token);
+    my $res = $ua->request_mylist_copy($group, $target, $item, $token);
     croak "Request 'request_mylist_copy' is error: @{[ $res->status_line ]}"
         if( $res->is_error );
     return $res->parsed_content;
@@ -464,6 +504,10 @@ Net::NicoVideo, instance of this class, is an utility
 that actually uses agent Net::NicoVideo::UserAgent.
 In other words, you can also use Net::NicoVideo::UserAgent to tackle the low level problems.
 However, in that case, you have to be cautious of sequence of accessing.
+
+ニコニコ動画は 2012 年 5 月にサイトがリニューアルされました。
+このモジュールが使える範囲は「ニコニコ動画（原宿）」と呼ばれる、リニューアル前のサイトです。
+「ニコニコ動画（原宿）」は現在も使う事ができますが、いつまで使えるかは不明です。
 
 =head1 CONSTRUCTOR
 
@@ -569,6 +613,12 @@ If it is not defined, $ENV{NET_NICOVIDEO_EMAIL} is returned instead.
 Get password that the instance has.
 If it is not defined, $ENV{NET_NICOVIDEO_PASSWORD} is returned instead.
 
+=head2 get_delay
+
+Get delay that the instance has.
+If it is not defined, $ENV{NET_NICOVIDEO_DELAY} is returned instead.
+Both are not defined, returns 1.
+
 =head1 FETCH METHOD
 
 コンテンツ・オブジェクトを取得するメソッド群。
@@ -660,9 +710,9 @@ Get an instance of Net::NicoVideo::Content::Thread for video_id.
 
 マイリストの RSS を取得するためのメソッド。
 
-=head2 fetch_mylistrss(mylist)
+=head2 fetch_mylist_rss(mylist)
 
-=head2 fetch_mylistrss(mylist_id)
+=head2 fetch_mylist_rss(mylist_id)
 
 引数に指定した mylist または mylist_id のマイリストの
 RSS を保持するコンテンツ・オブジェクトを返します。
@@ -679,7 +729,7 @@ NicoAPI はマイリスト類を AJAX 手段で得る為に JavaScript で実装
 マイリスト類のデータの取得、更新、削除などのメソッドを持っています。
 そして、取得するためのメソッド以外の実行には、アクセス・トークンが必要になります。
 
-=head2 fetch_mylistpage
+=head2 fetch_mylist_page
 
 ログインしているユーザの「マイリスト」ページを取得し、
 そのページを解析した結果を持つ Net::NicoVideo::Content::MylistPage オブジェクトを返します。
@@ -688,7 +738,7 @@ Get an instance of Net::NicoVideo::Content::MylistPage for take a "NicoAPI.token
 
 主にアクセス・トークンを得るためのものです。
 
-=head2 fetch_mylistitem(video_id)
+=head2 fetch_mylist_item(video_id)
 
 ログインしているユーザで、 video_id に対する「マイリストの追加」ページを取得し、
 そのページを解析した結果を持つ Net::NicoVideo::Content::MylistItem オブジェクトを返します。
@@ -713,16 +763,25 @@ NicoAPI.MylistGroup のメソッド群。
 しかしすでにアクセス・トークンを持っている場合は、それを指定する事で、
 アクセス・トークンの取得の為のサイトへのアクセスをなくす事ができます。
 
-=head2 fetch_mylistgroup([group_id])
+=head2 list_mylistgroup()
 
-ログインしたユーザのマイリスト・グループを取得します。
+ログインしたユーザのマイリスト・グループのリストを取得します。
 
 Get an instance of Net::NicoVideo::Content::MylistGroup for user own
 
-これは、 NicoAPI.MylistGroup#list または同#get に相当します。
-引数を与えたときは get になり、その group_id の情報のみになります。
+これは、 NicoAPI.MylistGroup#list に相当します。
 
-This is equivalent to NicoAPI.MylistGroup#list or #get.
+This is equivalent to NicoAPI.MylistGroup#list.
+
+=head2 get_mylistgroup(group_id)
+
+指定した grpup_id のマイリスト・グループを取得します。
+
+Get an instance of Net::NicoVideo::Content::MylistGroup for specified group_id.
+
+これは、 NicoAPI.MylistGroup#get に相当します。
+
+This is equivalent to NicoAPI.MylistGroup#get.
 
 =head2 add_mylistgroup(mylist, token)
 
@@ -746,6 +805,8 @@ This is equivalent to NicoAPI.MylistGroup#update
 
 =head2 remove_mylistgroup(mylist, token)
 
+=head2 delete_mylistgroup(mylist, token)
+
 指定したマイリストをログインしたユーザのマイリスト・グループから削除します。
 
 Remove a mylist.
@@ -765,32 +826,34 @@ NicoAPI.Mylist のメソッド群。
 しかしすでにアクセス・トークンを持っている場合は、それを指定する事で、
 アクセス・トークンの取得の為のサイトへのアクセスをなくす事ができます。
 
-=head2 fetch_mylist(group_id)
+=head2 list_mylist(group)
 
 group_id のマイリストのアイテム一覧を得ます。
 これは、 NicoAPI.Mylist#list に相当します。
 
-=head2 add_mylist(mylist, item, [token])
+=head2 add_mylist(group, item, [token])
 
 アイテム item をマイリスト mylist に追加します。
 これは、 NicoAPI.Mylist#add に相当します。
 
-=head2 update_mylist(mylist, item, [token])
+=head2 update_mylist(group, item, [token])
 
 マイリスト mylist のアイテム item を更新します。
 これは、 NicoAPI.Mylist#update に相当します。
 
-=head2 remove_mylist(mylist, item, [token])
+=head2 remove_mylist(group, item, [token])
+
+=head2 delete_mylist(group, item, [token])
 
 マイリスト mylist のアイテム item を削除します。
 これは、 NicoAPI.Mylist#remove に相当します。
 
-=head2 move_mylist
+=head2 move_mylist(group, target, item, [token])
 
 マイリスト mylist のアイテム item をマイリスト target へ移動します。
 これは、 NicoAPI.Mylist#move に相当します。
 
-=head2 copy_mylist
+=head2 copy_mylist(group, target, item, [token])
 
 マイリスト mylist のアイテム item をマイリスト target へコピーします。
 これは、 NicoAPI.Mylist#copy に相当します。
@@ -813,10 +876,10 @@ group_id のマイリストのアイテム一覧を得ます。
 
 This returns $ua which made it go via a login page:
 
-    $res = $ua->request_mylistrss($mylist);
+    $res = $ua->request_mylist_rss($mylist);
     unless( $res->is_authflagged ){             # if not logged-in
         $ua = $self->through_login($ua);        # login
-        $res = $ua->request_mylistrss($mylist); # try again
+        $res = $ua->request_mylist_rss($mylist); # try again
     }
 
 ログインに失敗した際は croak されます。
@@ -849,6 +912,7 @@ Note that it is necessary to set environment variables in advance.
 
     NET_NICOVIDEO_EMAIL
     NET_NICOVIDEO_PASSWORD
+    NET_NICOVIDEO_DELAY
 
 これらの明らかなる名前の環境変数が、その名の示すとおりの役割で有効です。
 

@@ -13,7 +13,7 @@ my $video_id = $ARGV[1] or die "usage: $0 group_id video_id [description]\n";
 my $desc     = $ARGV[2];
 
 my $nnv = Net::NicoVideo->new;
-my $mylistitem = $nnv->fetch_mylistitem($video_id);
+my $mylistitem = $nnv->fetch_mylist_item($video_id);
 
 $mylistitem->description($desc) if( defined $desc );
 

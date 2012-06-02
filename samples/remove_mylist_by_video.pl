@@ -13,7 +13,7 @@ my $group_id    = $ARGV[0] or die "usage: $0 group_id video_id\n";
 my $video_id    = $ARGV[1] or die "usage: $0 group_id video_id\n";
 
 my $nnv = Net::NicoVideo->new;
-my $mylistitem = $nnv->fetch_mylistitem($video_id);
+my $mylistitem = $nnv->fetch_mylist_item($video_id);
 
 my $api = $nnv->remove_mylist($group_id, $mylistitem, $mylistitem->token);
 

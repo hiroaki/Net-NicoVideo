@@ -11,7 +11,7 @@ binmode(STDERR, ":utf8");
 my $group_id = $ARGV[0] or die "usage: $0 group_id\n";
 
 my $nnv = Net::NicoVideo->new;
-my $api = $nnv->fetch_mylist($group_id); # Net::NicoVideo::Content::NicoAPI::MylistItem
+my $api = $nnv->list_mylist($group_id); # Net::NicoVideo::Content::NicoAPI::MylistItem
 
 say 'status: '. $api->status;
 unless( $api->is_status_ok ){
