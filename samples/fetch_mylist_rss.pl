@@ -10,7 +10,7 @@ binmode(STDERR, ":utf8");
 
 my $mylist_id = $ARGV[0] or die "usage: $0 mylist_id\n";
 
-my $rss = Net::NicoVideo->new->fetch_mylistrss($mylist_id);
+my $rss = Net::NicoVideo->new->fetch_mylist_rss($mylist_id);
 say Data::Dumper::Dumper([$rss]);
 say "-----";
 say "title      : ". $rss->title;
