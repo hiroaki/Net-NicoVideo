@@ -10,6 +10,7 @@ lib/Net/NicoVideo/Content/MylistItem.pm
 lib/Net/NicoVideo/Content/MylistPage.pm
 lib/Net/NicoVideo/Content/MylistRSS.pm
 lib/Net/NicoVideo/Content/NicoAPI.pm
+lib/Net/NicoVideo/Content/TagRSS.pm
 lib/Net/NicoVideo/Content/Thread.pm
 lib/Net/NicoVideo/Content/ThumbInfo.pm
 lib/Net/NicoVideo/Content/Video.pm
@@ -22,6 +23,7 @@ lib/Net/NicoVideo/Response/MylistItem.pm
 lib/Net/NicoVideo/Response/MylistPage.pm
 lib/Net/NicoVideo/Response/MylistRSS.pm
 lib/Net/NicoVideo/Response/NicoAPI.pm
+lib/Net/NicoVideo/Response/TagRSS.pm
 lib/Net/NicoVideo/Response/Thread.pm
 lib/Net/NicoVideo/Response/ThumbInfo.pm
 lib/Net/NicoVideo/Response/Video.pm
@@ -36,6 +38,7 @@ samples/fetch_flv.pl
 samples/fetch_mylist_item.pl
 samples/fetch_mylist_page.pl
 samples/fetch_mylist_rss.pl
+samples/fetch_tag_rss.pl
 samples/fetch_thread.pl
 samples/fetch_thumbinfo.pl
 samples/fetch_video.pl

@@ -3,7 +3,7 @@ package Net::NicoVideo;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_19';
+$VERSION = '0.01_20';
 
 use base qw(Class::Accessor::Fast);
 
@@ -158,6 +158,30 @@ sub fetch_thread {
         if( $res->is_content_error );
 
     return $res->parsed_content;
+}
+
+#-----------------------------------------------------------
+# Tag RSS
+# 
+
+sub fetch_tag_rss {
+    my ($self, $keyword, $params) = @_;
+    my $ua  = $self->get_user_agent;
+    my $res = $ua->request_tag_rss($keyword, $params);
+
+    croak "Request 'request_tag_rss' is error: @{[ $res->status_line ]}"
+        if( $res->is_error );
+
+    croak "Invalid content as 'tag'"
+        if( $res->is_content_error );
+
+    return $res->parsed_content;
+}
+
+sub fetch_tag_rss_by_recent_post { # shortcut
+    my ($self, $keyword, $page) = @_;
+    $page ||= 1;
+    $self->fetch_tag_rss($keyword, {order => 'f', page => $page});
 }
 
 #-----------------------------------------------------------
@@ -423,10 +447,9 @@ sub copy_mylist {
 1;
 __END__
 
+=pod
 
 =encoding utf-8
-
-=pod
 
 =head1 NAME
 
@@ -705,6 +728,53 @@ Get an instance of Net::NicoVideo::Content::Thread for video_id.
 取得するコメントを、動画オーナーのコメントだけに限定します。デフォルトは偽です。
 
 =back
+
+=head1 Tag
+
+タグ検索のためのメソッド。
+
+=head2 fetch_tag_rss(keyword, \%params)
+
+keyword で指定したタグで動画検索を行い、結果を RSS 形式で返します。
+
+オプションでハッシュリファレンス params を与える事ができます。
+そのキーと値は次のとおりです。
+
+=over 4
+
+=item "sort" => 'f|v|r|m|l'
+
+検索結果を並び替えるキーワードを指定します。
+
+    f ... 投稿日時
+    v ... 再生数
+    r ... コメント数
+    m ... マイリスト数
+    l ... 再生時間
+
+無指定のときは r コメント数になります。
+
+=item "order" => a
+
+並び替えの順序を指定します。 'a' を指定すると ASCEND つまり降順です。
+
+無指定のときは DESCEND 昇順です。
+
+=item "page" => number
+
+検索結果が多い場合は、結果は幾つかのページに別れており、何番目のページを得るかを指定します。
+
+無指定のときは 1 ページ目を得ます。
+
+なお 1 ページは最大で 32 件です。
+
+=back
+
+=head2 fetch_tag_rss_by_recent_post(keyword, page)
+
+投稿日時の降順で得るように params を固定して fetch_tag_rss を呼び出すショートカットです。
+
+引数にはタグと、オプションでページ番号を指定します。
 
 =head1 Mylist RSS
 

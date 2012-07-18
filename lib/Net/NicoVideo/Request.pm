@@ -3,11 +3,12 @@ package Net::NicoVideo::Request;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_19';
+$VERSION = '0.01_20';
 
 use base qw(HTTP::Request);
 use HTTP::Request::Common;
 use Carp qw/croak/;
+use URI::Escape;
 
 sub get {
     my $class = shift;
@@ -58,9 +59,24 @@ sub thread {
             $thread_id, ($opts->{'chats'} || 250), ($opts->{'fork'} ? ' fork="1"' : '');    
 }
 
+sub tag_rss {
+    my $class = shift;
+    my $keyword = shift or croak "missing mandatory parameter";
+    my $params = shift || {};
+    $params->{rss} = '2.0';
+    my @q = ();
+    while( my ($k, $v) = each %{$params} ){
+        $v = '' unless( defined $v );
+        push @q, sprintf('%s=%s', uri_escape($k), uri_escape($v));
+    }
+    my $url = sprintf 'http://www.nicovideo.jp/tag/%s', uri_escape($keyword);
+    $url = sprintf('%s?%s', $url, join('&', @q)) if( @q );
+    return GET $url;
+}
+
 sub mylist_rss {
     my $class = shift;
-    my $mylist_id = shift or croak "missing mandatory parameter";;
+    my $mylist_id = shift or croak "missing mandatory parameter";
     my $url = 'http://www.nicovideo.jp/mylist/'.$mylist_id.'?rss=2.0';
     return GET $url;
 }

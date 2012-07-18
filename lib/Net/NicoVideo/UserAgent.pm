@@ -3,7 +3,7 @@ package Net::NicoVideo::UserAgent;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_19';
+$VERSION = '0.01_20';
 
 use base qw(Net::NicoVideo::Decorator);
 
@@ -81,6 +81,17 @@ sub request_thread {
     require Net::NicoVideo::Response::Thread;
     Net::NicoVideo::Response::Thread->new(
         $self->request(Net::NicoVideo::Request->thread($flv->ms,$flv->thread_id,$opts)));
+}
+
+#-----------------------------------------------------------
+# Tag RSS
+# 
+
+sub request_tag_rss {
+    my ($self, $keyword, $params) = @_;
+    require Net::NicoVideo::Response::TagRSS;
+    Net::NicoVideo::Response::TagRSS->new(
+        $self->request(Net::NicoVideo::Request->tag_rss($keyword,$params)));
 }
 
 #-----------------------------------------------------------
