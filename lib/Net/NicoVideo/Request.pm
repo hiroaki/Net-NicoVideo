@@ -3,7 +3,7 @@ package Net::NicoVideo::Request;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_20';
+$VERSION = '0.01_21';
 
 use base qw(HTTP::Request);
 use HTTP::Request::Common;
@@ -67,9 +67,9 @@ sub tag_rss {
     my @q = ();
     while( my ($k, $v) = each %{$params} ){
         $v = '' unless( defined $v );
-        push @q, sprintf('%s=%s', uri_escape($k), uri_escape($v));
+        push @q, sprintf('%s=%s', uri_escape_utf8($k), uri_escape_utf8($v));
     }
-    my $url = sprintf 'http://www.nicovideo.jp/tag/%s', uri_escape($keyword);
+    my $url = sprintf 'http://www.nicovideo.jp/tag/%s', uri_escape_utf8($keyword);
     $url = sprintf('%s?%s', $url, join('&', @q)) if( @q );
     return GET $url;
 }
