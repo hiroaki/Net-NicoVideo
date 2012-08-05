@@ -3,7 +3,7 @@ package Net::NicoVideo;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_21';
+$VERSION = '0.01_22';
 
 use base qw(Class::Accessor::Fast);
 
@@ -181,7 +181,7 @@ sub fetch_tag_rss {
 sub fetch_tag_rss_by_recent_post { # shortcut
     my ($self, $keyword, $page) = @_;
     $page ||= 1;
-    $self->fetch_tag_rss($keyword, {order => 'f', page => $page});
+    $self->fetch_tag_rss($keyword, {'sort' => 'f', page => $page});
 }
 
 #-----------------------------------------------------------
