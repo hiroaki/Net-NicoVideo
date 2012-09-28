@@ -3,7 +3,7 @@ package Net::NicoVideo;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_22';
+$VERSION = '0.01_23';
 
 use base qw(Class::Accessor::Fast);
 
@@ -87,6 +87,12 @@ sub fetch_thumbinfo {
 sub fetch_flv {
     my ($self, $video_id) = @_;
     my $ua  = $self->get_user_agent;
+    
+    # workaround
+    if( $video_id and $video_id =~ /^so\d+$/ ){
+        my $item = $self->fetch_mylist_item($video_id);
+        $video_id = $item->item_id;
+    }
     my $res = $ua->request_flv($video_id);
 
     croak "Request 'request_flv' is error: @{[ $res->status_line ]}"
@@ -457,6 +463,9 @@ Net::NicoVideo - Perl Interface for accessing Nico Nico Douga
 
 =head1 VERSION
 
+このモジュールは未完成です。
+API は今後も変えられることが予想され、多くの機能がまだ未実装です。
+
 This is an alpha version.
 The API is still subject to change. Many features have not been implemented yet.
 
@@ -501,7 +510,7 @@ in Japan managed by Niwango, a subsidiary of Dwango.
 配布 Net-NicoVideo は、ニコニコ動画のサイト内外でやりとりされる
 各オブジェクト（ HTTP メッセージ）へアクセスするためのインタフェースを提供します。
 これにより、一貫したアクセス方法によってサイトへアクセスすることができ、
-またカプセル化されたレスポンスがを結果として得る事ができます。
+またカプセル化されたレスポンスを結果として得る事ができます。
 
 A Distribution Net-NicoVideo is Perl Interface for accessing Nico Nico Douga.
 This provides the consistent access method,
@@ -509,18 +518,18 @@ and contents are encapsulated and give facilities to clients.
 
 そしてこのクラス Net::NicoVideo は、各オブジェクトを得る為の手続きを、
 コンパクトに纏めたユーティリティとしてあります。
-インスタンスは、実際には Net::NicoVideo::UserAgent を利用しています。
-言い換えれば、クライアントはより低レベルのアクセスのために
+インスタンスは、その内部では Net::NicoVideo::UserAgent を利用しています。
+言い換えれば、クライアントはより低レベルの仕事のために
 Net::NicoVideo::UserAgent を使う事ができます。
 
-ただしその場合は、アクセスの段取りに自ら注意を払う必要があることでしょう。
-サイトには、あるオブジェクトを得る為に、暗黙のルールが存在するからです。
+その場合は、アクセスの段取りにクライアントは自ら注意を払う必要があることでしょう。
+アクセス対象のサイトには、あるオブジェクトを得る為に、守るべきルールが存在するからです。
 
 たとえば、動画ファイルを取得したい場合は、まずサイトにログインし、
 flv と呼ばれるオブジェクトをリクエストし、更に動画を閲覧した上で、
 動画の URL をリクエストしなければなりません。
 
-クラス Net::NicoVideo のインスタンスはそうした暗黙の手続きをブラックボックス化し、
+クラス Net::NicoVideo のインスタンスはそうした暗黙のルールをメソッドとしてまとめ、
 ユーザに便宜をはかります。
 
 Net::NicoVideo, instance of this class, is an utility
@@ -528,9 +537,15 @@ that actually uses agent Net::NicoVideo::UserAgent.
 In other words, you can also use Net::NicoVideo::UserAgent to tackle the low level problems.
 However, in that case, you have to be cautious of sequence of accessing.
 
-ニコニコ動画は 2012 年 5 月にサイトがリニューアルされました。
+いずれにしても、このモジュールを使う際には、
+サイトのオブジェクトについて（たとえば flv とは何か、 thumbinfo とは何かなど）、
+ある程度の知識が要るかもしれません。
+ただ、そういった事柄については Web を探す事ですぐに答を得る事が出来るでしょう。
+
+なお、ニコニコ動画は 2012 年 5 月にサイトがリニューアルされました。
 このモジュールが使える範囲は「ニコニコ動画（原宿）」と呼ばれる、リニューアル前のサイトです。
-「ニコニコ動画（原宿）」は現在も使う事ができますが、いつまで使えるかは不明です。
+「ニコニコ動画（原宿）」は、いつまで使えるかは、このモジュールの作者は知りません。
+──このモジュールは、いまもまだ使えているでしょうか？
 
 =head1 CONSTRUCTOR
 
@@ -556,14 +571,14 @@ However, in that case, you have to be cautious of sequence of accessing.
 
 =head2 user_agent
 
-サイトへ HTTP （または HTTPS ）アクセスするための
+サイトへ HTTP （または HTTPS ）でアクセスするための
 ユーザ・エージェントを取得、または設定します。
 設定するユーザ・エージェントは LWP::UserAgent のインスタンスか、
 そのサブクラスのインスタンスである必要があります。
 
 Get or set user agent that $nnv would access to Nico Nico Video via HTTP(s).
 
-    $nnv->user_agent($ua);
+    $nnv->user_agent(LWP::UserAgent->new);
     $ua = $nnv->user_agent;
 
 =head2 email
@@ -645,6 +660,7 @@ Both are not defined, returns 1.
 =head1 FETCH METHOD
 
 コンテンツ・オブジェクトを取得するメソッド群。
+
 このカテゴリのメソッドは、サイトの各コンテンツに対応しており、
 それぞれ、取得したコンテンツを解析した結果を持っている
 Net::NicoVideo::Content のインスタンスを返します。
@@ -653,7 +669,8 @@ Net::NicoVideo::Content のインスタンスを返します。
 コンテンツの種類ごとにサブクラスが定義されているため、
 Net::NicoVideo::Content 以下の各サブクラスを参照して下さい。
 
-Each methods return Net::NicoVideo::Content class which stored the result of having parsed the response.
+Each methods return Net::NicoVideo::Content class 
+which stored the result of having parsed the response.
 Please see sub classes under Net::NicoVideo::Content for detail.
 
 =head2 fetch_thumbinfo(video_id)
@@ -681,7 +698,8 @@ Get an instance of Net::NicoVideo::Content::Watch for video_id.
 これは、サイトに対して、クライアントが動画を閲覧することを示します。
 そしてその振る舞いは、 fetch_video を呼ぶ直前に必要なことになっています。
 
-This means that the agent watches the video, and this behavior is required before fetch_video.
+This means that the agent watches the video,
+and this behavior is required before fetch_video.
 
 =head2 fetch_video(video_id, @args)
 
@@ -689,7 +707,7 @@ This means that the agent watches the video, and this behavior is required befor
 
 =head2 fetch_video(url, @args)
 
-第一引数に与えた video_id, flv オブジェクト, または直接の URL の動画のデータを取得します。
+第一引数に与えた video_id 、 flv オブジェクト、または直接の URL の動画のデータを取得します。
 URL の場合、それは flv オブジェクトから取得できる URL でなければ意味をなさないでしょう。
 
 Get an instance of Net::NicoVideo::Content::Video for video_id, flv or url.
@@ -698,7 +716,7 @@ which is created by $nnv->fetch_flv.
 
 取得したデータはそれ以降の引数によって処理される方法が異なります。
 このメソッドは LWP::UserAgent の request メソッドと同じで、
-実際、内部で透過的にそれを呼んでいます。
+実際、内部では透過的にそれを呼んでいます。
 たとえば、第二引数にスカラー値を与えた場合は、それはファイル・パスとして解釈され、
 動画コンテンツはそのファイルに保存されます。
 詳しくは LWP::UserAgent の request メソッドを参照して下さい。
@@ -827,9 +845,10 @@ This method is useful for take a "NicoAPI.token" to update Mylist, "item_type" a
 NicoAPI.MylistGroup のメソッド群。
 
 マイリスト・グループを操作するメソッド群です。
-取得するためのメソッド以外の実行には、アクセス・トークンが必要になります。
+これらのメソッドで、何かを取得すること *以外* の実行には、
+アクセス・トークンが必要になります。
 
-ただし、トークン省略しても、内部で自動的に取得され、それが用いられます。
+ただしトークン省略しても、それは内部で自動的に取得され、用いられます。
 しかしすでにアクセス・トークンを持っている場合は、それを指定する事で、
 アクセス・トークンの取得の為のサイトへのアクセスをなくす事ができます。
 
@@ -890,9 +909,10 @@ This is equivalent to NicoAPI.MylistGroup#remove
 NicoAPI.Mylist のメソッド群。
 
 マイリストのアイテムを操作するメソッド群です。
-取得するためのメソッド以外の実行には、アクセス・トークンが必要になります。
+これらのメソッドで、何かを取得すること *以外* の実行には、
+アクセス・トークンが必要になります。
 
-ただし、トークン省略しても、内部で自動的に取得され、それが用いられます。
+ただしトークン省略しても、それは内部で自動的に取得され、用いられます。
 しかしすでにアクセス・トークンを持っている場合は、それを指定する事で、
 アクセス・トークンの取得の為のサイトへのアクセスをなくす事ができます。
 
@@ -936,7 +956,12 @@ group_id のマイリストのアイテム一覧を得ます。
 
 引数に与えたユーザ・エージェント Net::NicoVideo::UserAgent のインスタンスを、
 ログイン・ページへ導き、そしてログインを行います。
-そして、その結果を持たせて返却します。
+そして、その結果を持たせた元のユーザ・エージェントを返却します。
+
+引数に与えたインスタンスと、
+返却されるインスタンスは同じインスタンスです。
+
+The returning $ua is the same instance as what was given.
 
 典型的には、次のように使われます。
 ログインが必要なページを、まずログインすることなしにアクセスを試み、
@@ -947,17 +972,12 @@ group_id のマイリストのアイテム一覧を得ます。
 This returns $ua which made it go via a login page:
 
     $res = $ua->request_mylist_rss($mylist);
-    unless( $res->is_authflagged ){             # if not logged-in
-        $ua = $self->through_login($ua);        # login
+    unless( $res->is_authflagged ){              # if not logged-in
+        $ua = $self->through_login($ua);         # login
         $res = $ua->request_mylist_rss($mylist); # try again
     }
 
 ログインに失敗した際は croak されます。
-
-なお引数に与えたインスタンスと、
-返却されるインスタンスは同じインスタンスです。
-
-The returning $ua is the same instance as what was given.
 
 =head2 download(video_id, file)
 
@@ -977,6 +997,11 @@ For busy person, you can download a video by one liner like this:
 ただし、これから説明する環境変数を予めセットしておく必要があるでしょう。
 
 Note that it is necessary to set environment variables in advance.
+
+ノート：ダウンロードされるメディア・ファイルは、 MP4 かもしれませんが、
+そうでないかもしれません。
+現在知られているのは MP4, FLV または SWF のいずれかです。
+前もって Thumbinfo を取得して、その内容から判断することもできます。
 
 =head1 ENVIRONMENT VARIABLE
 
