@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 23;
+use Test::More tests => 24;
 
 BEGIN {
     use_ok 'Net::NicoVideo';
@@ -26,6 +26,7 @@ BEGIN {
     use_ok 'Net::NicoVideo::Response::Watch';
     use_ok 'Net::NicoVideo::Response';
     use_ok 'Net::NicoVideo::UserAgent';
+    use_ok 'Net::NicoVideo::URL';
 }
 
 1;

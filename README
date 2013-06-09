@@ -2,7 +2,7 @@ NAME
     Net::NicoVideo - Perl Interface for accessing Nico Nico Douga
 
 VERSION
-    このモジュールは未完成です。 API は今後も変えられることが予想され、多くの機能がまだ未実装です。
+    このモジュールは未完成です。 API は今後も変えられることが予想され、多くの機能が未実装です。
 
     This is an alpha version. The API is still subject to change. Many
     features have not been implemented yet.
@@ -459,7 +459,7 @@ REPOSITORY
     https://github.com/hiroaki/Net-NicoVideo
 
 AUTHOR
-    WATANABE Hiroaki <hwat@mac.com>
+    WATANABE Hiroaki <hwat@cpan.org>
 
 LICENSE
     This library is free software; you can redistribute it and/or modify it

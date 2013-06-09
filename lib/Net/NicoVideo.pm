@@ -3,7 +3,7 @@ package Net::NicoVideo;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_23';
+$VERSION = '0.01_24';
 
 use base qw(Class::Accessor::Fast);
 
@@ -464,7 +464,7 @@ Net::NicoVideo - Perl Interface for accessing Nico Nico Douga
 =head1 VERSION
 
 このモジュールは未完成です。
-API は今後も変えられることが予想され、多くの機能がまだ未実装です。
+API は今後も変えられることが予想され、多くの機能が未実装です。
 
 This is an alpha version.
 The API is still subject to change. Many features have not been implemented yet.
@@ -1026,7 +1026,7 @@ Net::NicoVideo is hosted on github https://github.com/hiroaki/Net-NicoVideo
 
 =head1 AUTHOR
 
-WATANABE Hiroaki E<lt>hwat@mac.comE<gt>
+WATANABE Hiroaki E<lt>hwat@cpan.orgE<gt>
 
 =head1 LICENSE
 
