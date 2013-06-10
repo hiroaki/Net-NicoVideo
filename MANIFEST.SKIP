@@ -12,3 +12,5 @@
 \.git
 \.gitignore
 \.DS_Store
+MYMETA.json
+MYMETA.yml
