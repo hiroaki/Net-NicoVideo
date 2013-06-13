@@ -3,7 +3,7 @@ package Net::NicoVideo::UserAgent;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_20';
+$VERSION = '0.01_26';
 
 use base qw(Net::NicoVideo::Decorator);
 
@@ -320,19 +320,12 @@ Net::NicoVideo::UserAgent - Decorate LWP::UserAgent with requests to access to N
 
 =head1 DESCRIPTION
 
-Decorate LWP::UserAgent with requests to access to Nico Nico Douga.
+Decorate L<LWP::UserAgent> with requests to access to Nico Nico Douga.
 
 =head1 SEE ALSO
 
 L<Net::NicoVideo::Decorator>
 L<Net::NicoVideo::Request>
 L<Net::NicoVideo::Response>
-
-=head1 AUTHOR
-
-WATANABE Hiroaki E<lt>hwat@mac.comE<gt>
-
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
 
 =cut

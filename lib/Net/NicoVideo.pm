@@ -3,7 +3,7 @@ package Net::NicoVideo;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_25';
+$VERSION = '0.01_26';
 
 use base qw(Class::Accessor::Fast);
 
@@ -455,6 +455,8 @@ __END__
 
 =pod
 
+=encoding utf8
+
 =head1 NAME
 
 Net::NicoVideo - Perl Interface for accessing Nico Nico Douga
@@ -507,7 +509,7 @@ and contents are encapsulated and give facilities to clients.
 And this class Net::NicoVideo is an utility which summarized the procedure 
 for obtaining each object compactly.
 
-An instance of this class uses Net::NicoVideo::UserAgent in the inside.
+An instance of this class uses L<Net::NicoVideo::UserAgent> in the inside.
 In other words, the client can use L<Net::NicoVideo::UserAgent> for work of a low level. 
 
 =head1 CONSTRUCTOR
@@ -535,7 +537,7 @@ When a value is given to an argument, the value is set as the field.
 
 Get or set an user agent that $nnv would access to Nico Nico Video via HTTP(s).
 
-The user agent who sets up needs to be an instance of LWP::UserAgent.
+The user agent who sets up needs to be an instance of L<LWP::UserAgent>.
 
     $nnv->user_agent(LWP::UserAgent->new);
     $ua = $nnv->user_agent;
@@ -600,33 +602,33 @@ Please see sub classes under L<Net::NicoVideo::Content> for detail.
 
 =head2 fetch_thumbinfo(video_id)
 
-Get an instance of Net::NicoVideo::Content::ThumbInfo for video_id.
+Get an instance of L<Net::NicoVideo::Content::ThumbInfo> for video_id.
 
 =head2 fetch_flv(video_id)
 
-Get an instance of Net::NicoVideo::Content::Flv for video_id.
+Get an instance of L<Net::NicoVideo::Content::Flv> for video_id.
 
 =head2 fetch_watch(video_id)
 
-Get an instance of Net::NicoVideo::Content::Watch for video_id.
+Get an instance of L<Net::NicoVideo::Content::Watch> for video_id.
 
 This means that the agent watches the video,
 and this behavior is required before fetch_video.
 
 =head2 fetch_video(video_id | flv | url, @args)
 
-Get an instance of Net::NicoVideo::Content::Video for video_id, flv or url.
-The url is value getting via $flv->url, and $flv is a Net::NicoVideo::Content::Flv
+Get an instance of L<Net::NicoVideo::Content::Video> for video_id, flv or url.
+The url is value getting via $flv->url, and $flv is a L<Net::NicoVideo::Content::Flv>
 which is created by $nnv->fetch_flv.
 
-The second parameter, it works like as request() method of LWP::UserAgent,
+The second parameter, it works like as request() method of L<LWP::UserAgent>,
 in fact, it is called.
 
 An example, if it is a scalar value then it means that the file path to store contents.
 
 =head2 fetch_thread(video_id | flv, \%options)
 
-Get an instance of Net::NicoVideo::Content::Thread for video_id.
+Get an instance of L<Net::NicoVideo::Content::Thread> for video_id.
 
 The hash reference of the second argument is an option
 and receives the following key and the pair of a value. 

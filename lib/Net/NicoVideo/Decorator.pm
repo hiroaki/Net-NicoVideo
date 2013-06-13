@@ -3,7 +3,7 @@ package Net::NicoVideo::Decorator;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_03';
+$VERSION = '0.01_26';
 
 use vars qw($AUTOLOAD);
 
@@ -60,16 +60,5 @@ Net::NicoVideo::Decorator - Interface decorator pattern
 =head1 DESCRIPTION
 
 This provides common interface for the decorator pattern easily.
-
-=head1 SEE ALSO
-
-L<perl>
-
-=head1 AUTHOR
-
-WATANABE Hiroaki E<lt>hwat@mac.comE<gt>
-
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
 
 =cut

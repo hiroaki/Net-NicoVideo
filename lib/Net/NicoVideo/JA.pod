@@ -54,9 +54,9 @@ API は今後も変えられることが予想され、多くの機能が未実�
 そしてこのクラス Net::NicoVideo は、各オブジェクトを得る為の手続きを、
 コンパクトに纏めたユーティリティとして、あります。
 
-このクラスのインスタンスは、その内部では Net::NicoVideo::UserAgent を利用しています。
+このクラスのインスタンスは、その内部では L<Net::NicoVideo::UserAgent> を利用しています。
 言い換えれば、クライアントはより低レベルの仕事のために
-Net::NicoVideo::UserAgent を使う事ができます。
+L<Net::NicoVideo::UserAgent> を使う事ができます。
 
 その場合は、アクセスの段取りにクライアントは自ら注意を払う必要があることでしょう。
 アクセス対象のサイトには、あるオブジェクトを得る為に、守るべきルールが存在するからです。
@@ -104,7 +104,7 @@ flv と呼ばれるオブジェクトをリクエストし、更に動画を閲�
 
 サイトへ HTTP （または HTTPS ）でアクセスするための
 ユーザ・エージェントを取得、または設定します。
-設定するユーザ・エージェントは LWP::UserAgent のインスタンスか、
+設定するユーザ・エージェントは L<LWP::UserAgent> のインスタンスか、
 そのサブクラスのインスタンスである必要があります。
 
     $nnv->user_agent(LWP::UserAgent->new);
@@ -141,13 +141,13 @@ flv と呼ばれるオブジェクトをリクエストし、更に動画を閲�
 
 =head2 get_user_agent
 
-カスタマイズされたユーザ・エージェント Net::NicoVideo::UserAgent の
+カスタマイズされたユーザ・エージェント L<Net::NicoVideo::UserAgent> の
 インスタンスを作成して返します。
 
-Net::NicoVideo::UserAgent はフィールド user_agent に設定されたインスタンスを
+L<Net::NicoVideo::UserAgent> はフィールド user_agent に設定されたインスタンスを
 装飾するデコレータになっています。
 フィールド user_agent が設定されていない場合は、
-デコレートされるコンポーネントとして LWP::UserAgent のインスタンスが生成されます。
+デコレートされるコンポーネントとして L<LWP::UserAgent> のインスタンスが生成されます。
 
 =head2 get_email
 
@@ -177,11 +177,11 @@ Net::NicoVideo::UserAgent はフィールド user_agent に設定されたイン
 
 このカテゴリのメソッドは、サイトの各コンテンツに対応しており、
 それぞれ、取得したコンテンツを解析した結果を持っている
-Net::NicoVideo::Content のインスタンスを返します。
+L<Net::NicoVideo::Content> のインスタンスを返します。
 
 その、返されるオブジェクトの具体的な内容については、
 コンテンツの種類ごとにサブクラスが定義されているため、
-Net::NicoVideo::Content 以下の各サブクラスを参照して下さい。
+L<Net::NicoVideo::Content> 以下の各サブクラスを参照して下さい。
 
 =head2 fetch_thumbinfo(video_id)
 
@@ -208,11 +208,11 @@ Watch オブジェクトは仮想的なもので、実際は動画ページへ�
 URL の場合、それは flv オブジェクトから取得できる URL でなければ意味をなさないでしょう。
 
 取得したデータはそれ以降の引数によって処理される方法が異なります。
-このメソッドは LWP::UserAgent の request メソッドと同じで、
+このメソッドは L<LWP::UserAgent> の request メソッドと同じで、
 実際、内部では透過的にそれを呼んでいます。
 たとえば、第二引数にスカラー値を与えた場合は、それはファイル・パスとして解釈され、
 動画コンテンツはそのファイルに保存されます。
-詳しくは LWP::UserAgent の request メソッドを参照して下さい。
+詳しくは L<LWP::UserAgent> の request メソッドを参照して下さい。
 
 =head2 fetch_thread(video_id | flv, \%options)
 
@@ -283,9 +283,7 @@ keyword で指定したタグで動画検索を行い、結果を RSS 形式で�
 
 マイリストの RSS を取得するためのメソッド。
 
-=head2 fetch_mylist_rss(mylist)
-
-=head2 fetch_mylist_rss(mylist_id)
+=head2 fetch_mylist_rss(mylist | mylist_id)
 
 引数に指定した mylist または mylist_id のマイリストの
 RSS を保持するコンテンツ・オブジェクトを返します。
@@ -303,14 +301,14 @@ NicoAPI はマイリスト類を AJAX 手段で得る為に JavaScript で実装
 =head2 fetch_mylist_page
 
 ログインしているユーザの「マイリスト」ページを取得し、
-そのページを解析した結果を持つ Net::NicoVideo::Content::MylistPage オブジェクトを返します。
+そのページを解析した結果を持つ L<Net::NicoVideo::Content::MylistPage> オブジェクトを返します。
 
 主にアクセス・トークンを得るためのものです。
 
 =head2 fetch_mylist_item(video_id)
 
 ログインしているユーザで、 video_id に対する「マイリストの追加」ページを取得し、
-そのページを解析した結果を持つ Net::NicoVideo::Content::MylistItem オブジェクトを返します。
+そのページを解析した結果を持つ L<Net::NicoVideo::Content::MylistItem> オブジェクトを返します。
 
 これにより video_id の動画に対する "item_id" および "item_type" を得る事ができます。
 
@@ -335,8 +333,6 @@ NicoAPI.MylistGroup のメソッド群。
 ログインしたユーザのマイリスト・グループのリストを取得します。
 
 これは、 NicoAPI.MylistGroup#list に相当します。
-
-This is equivalent to NicoAPI.MylistGroup#list.
 
 =head2 get_mylistgroup(group_id)
 
@@ -418,7 +414,7 @@ remove_mylist のエイリアスです。
 
 =head2 through_login(ua)
 
-引数に与えたユーザ・エージェント Net::NicoVideo::UserAgent のインスタンスを、
+引数に与えたユーザ・エージェント L<Net::NicoVideo::UserAgent> のインスタンスを、
 ログイン・ページへ導き、そしてログインを行います。
 そして、その結果を持たせた元のユーザ・エージェントを返却します。
 

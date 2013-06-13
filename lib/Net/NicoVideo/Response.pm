@@ -3,7 +3,7 @@ package Net::NicoVideo::Response;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_04';
+$VERSION = '0.01_26';
 
 use base qw/Net::NicoVideo::Decorator/;
 
@@ -45,17 +45,10 @@ Net::NicoVideo::Response - Abstract class decorates with HTTP::Response
     
 =head1 DESCRIPTION
 
-Abstract class decorates with HTTP::Response
+Abstract class decorates with L<HTTP::Response>.
 
 =head1 SEE ALSO
 
 L<Net::NicoVideo::Decorator>
-
-=head1 AUTHOR
-
-WATANABE Hiroaki E<lt>hwat@mac.comE<gt>
-
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
 
 =cut
