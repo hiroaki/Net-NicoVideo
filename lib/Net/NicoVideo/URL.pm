@@ -3,7 +3,7 @@ package Net::NicoVideo::URL;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_24';
+$VERSION = '0.27';
 
 use base qw(Exporter);
 use vars qw(@EXPORT);

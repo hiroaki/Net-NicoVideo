@@ -3,7 +3,7 @@ package Net::NicoVideo;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_26';
+$VERSION = '0.27';
 
 use base qw(Class::Accessor::Fast);
 
