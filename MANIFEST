@@ -53,5 +53,6 @@ samples/update_mylist.pl
 samples/update_mylistgroup.pl
 t/00_compile.t
 t/10_net_nicovideo.t
+t/20_request.t
 t/50_mylistrss.t
 t/80_net_nicovideo_url.t
