@@ -109,11 +109,11 @@ sub unshorten {
     my $dir     = undef;
     my $id      = undef;
     my $class   = undef;
-    if( $url =~ m{^(https?)://nico\.ms/(\w+)/([-_0-9A-Za-z]+)} ){
+    if( $url =~ m{^(https?)://nico\.(?:ms|sc)/(\w+)/([-_0-9A-Za-z]+)} ){
         $schem  = $1;
         $dir    = $2;
         $id     = $3;
-    }elsif( $url =~ m{^(https?)://nico\.ms/((\w{2})[-_0-9A-Za-z]+)} ){
+    }elsif( $url =~ m{^(https?)://nico\.(?:ms|sc)/((\w{2})[-_0-9A-Za-z]+)} ){
         $schem  = $1;
         $id     = $2;
         $class  = $3;
