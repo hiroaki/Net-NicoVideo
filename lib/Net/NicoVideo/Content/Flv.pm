@@ -3,10 +3,11 @@ package Net::NicoVideo::Content::Flv;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_08';
+$VERSION = '0.27_01';
 
-use base qw(Class::Accessor::Fast);
+use base qw(Net::NicoVideo::Content);
 use Carp qw(croak);
+use CGI::Simple;
 
 use vars qw(@Members);
 @Members = qw(
@@ -31,9 +32,21 @@ rpu
 
 __PACKAGE__->mk_accessors(@Members);
 
-sub members {
+sub members { # implement
     my @copy = @Members;
     @copy;
+}
+
+sub parse { # implement
+    my $self = shift;
+    $self->load($_[0]) if( defined $_[0] );
+
+    my $cgi = CGI::Simple->new($self->_decoded_content);
+    for my $name ( $cgi->param ){
+        $self->$name( $cgi->param($name) )
+            if( $self->can($name) );
+    }
+    return $self;
 }
 
 sub is_economy {

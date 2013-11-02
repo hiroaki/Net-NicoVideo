@@ -1,24 +1,28 @@
 #!/usr/bin/env perl
 
-use 5.12.0;
+use strict;
 use warnings;
+use feature qw/say/;
+
 use Net::NicoVideo;
 use Net::NicoVideo::Content::NicoAPI;
+
 binmode(STDOUT, ":utf8");
 binmode(STDERR, ":utf8");
 
-my $nnv = Net::NicoVideo->new;
-my $nico = $nnv->list_mylistgroup;
+my $nnv     = Net::NicoVideo->new;
+my $nico    = $nnv->list_mylistgroup;
 
 say 'status: '. $nico->status;
+
 unless( $nico->is_status_ok ){
     say $nico->error_description;
 }else{
     for my $mylist ( @{$nico->mylistgroup} ){
     
-        say '-----';
+        say '--';
         for my $mem ( Net::NicoVideo::Content::NicoAPI::MylistGroup->members ){
-            say "$mem\t". ($mylist->$mem() // '(undef)');
+            say "$mem: ". ($mylist->$mem() // '(undef)');
         }
     }
 }

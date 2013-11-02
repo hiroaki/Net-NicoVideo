@@ -3,9 +3,11 @@ package Net::NicoVideo::Content::MylistItem;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_18';
+$VERSION = '0.27_01';
 
-use base qw(Class::Accessor::Fast);
+use base qw(Net::NicoVideo::Content);
+use HTML::Parser 3.00;
+
 use vars qw(@Members);
 @Members = qw(
 item_type
@@ -16,9 +18,50 @@ token
 
 __PACKAGE__->mk_accessors(@Members);
 
-sub members {
+sub members { # implement
     my @copy = @Members;
     @copy;
+}
+
+sub parse { # implement
+    my $self = shift;
+    $self->load($_[0]) if( defined $_[0] );
+
+    my $content = $self->_decoded_content;
+
+    # take NicoAPI.token
+    if( $content =~ /NicoAPI\.token\s*=\s*"([-\w]+)"/ ){
+        $self->token( $1 );
+    }
+
+    # take item_type and item_id using HTML::Parser
+    my $item_type   = undef;
+    my $item_id     = undef;
+    my $description = undef;
+    my $p;
+    $p = HTML::Parser->new(
+        api_version => 3,
+        start_h => [ sub {
+                my ($tagname, $attr) = @_;
+                if( lc($tagname) eq 'input' ){
+                    if( exists $attr->{name} and lc($attr->{name}) eq 'item_type' ){
+                        $item_type  = $attr->{value};
+                    }
+                    if( exists $attr->{name} and lc($attr->{name}) eq 'item_id' ){
+                        $item_id    = $attr->{value};
+                    }
+                    if( exists $attr->{name} and lc($attr->{name}) eq 'description' ){
+                        $description= $attr->{value};
+                    }
+                }
+                $p->eof if( defined $item_type and defined $item_id and defined $description );
+            }, 'tagname, attr']);
+    $p->parse($content);
+    $self->item_type( $item_type );
+    $self->item_id( $item_id );
+    $self->description( $description );
+
+    return $self;
 }
 
 1;
@@ -47,6 +90,8 @@ An important thing that this page is having "item_type" and "item_id" for specif
 and "token" to update Mylist.
 
 =head1 SEE ALSO
+
+L<Net::NicoVideo::Content>
 
 L<Net::NicoVideo::Response::MylistItem>
 

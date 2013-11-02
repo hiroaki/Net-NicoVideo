@@ -5,9 +5,9 @@ package Net::NicoVideo::Content::Watch;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_08';
+$VERSION = '0.27_01';
 
-use base qw(Class::Accessor::Fast);
+use base qw(Net::NicoVideo::Content);
 use Carp qw(croak);
 
 use vars qw(@Members);
@@ -17,9 +17,19 @@ decoded_content
 
 __PACKAGE__->mk_accessors(@Members);
 
-sub members {
+sub members { # implement
     my @copy = @Members;
     @copy;
 }
 
+# TODO - temporary it returns decded_content
+sub parse { # implement
+    my $self = shift;
+    $self->load($_[0]) if( defined $_[0] );
+
+    $self->decoded_content( $self->_decoded_content );
+    return $self;
+}
+
 1;
+__END__

@@ -3,7 +3,7 @@ package Net::NicoVideo::Response;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_26';
+$VERSION = '0.27_01';
 
 use base qw/Net::NicoVideo::Decorator/;
 
@@ -16,7 +16,7 @@ sub is_authflagged {
 # before calling this
 sub parsed_content { # abstract
     my $self = shift;
-    $self->_component->decoded_content;
+    Net::NicoVideo::Content->new($self->_component);
 }
 
 sub is_content_success { # abstract

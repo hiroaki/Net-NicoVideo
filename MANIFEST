@@ -3,6 +3,7 @@ MANIFEST			This list of files
 Makefile.PL
 README
 lib/Net/NicoVideo.pm
+lib/Net/NicoVideo/Content.pm
 lib/Net/NicoVideo/Content/Flv.pm
 lib/Net/NicoVideo/Content/MylistItem.pm
 lib/Net/NicoVideo/Content/MylistPage.pm
@@ -27,8 +28,8 @@ lib/Net/NicoVideo/Response/Thread.pm
 lib/Net/NicoVideo/Response/ThumbInfo.pm
 lib/Net/NicoVideo/Response/Video.pm
 lib/Net/NicoVideo/Response/Watch.pm
-lib/Net/NicoVideo/UserAgent.pm
 lib/Net/NicoVideo/URL.pm
+lib/Net/NicoVideo/UserAgent.pm
 samples/add_mylist.pl
 samples/add_mylist_by_video.pl
 samples/add_mylistgroup.pl
