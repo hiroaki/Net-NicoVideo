@@ -1,11 +1,14 @@
 #!/usr/bin/env perl
 
-use 5.12.0;
+use strict;
 use warnings;
+use feature qw/say/;
+
 use Net::NicoVideo;
 use Net::NicoVideo::Content::NicoAPI;
 use Data::Dumper;
 local $Data::Dumper::Indent = 1;
+
 binmode(STDOUT, ":utf8");
 binmode(STDERR, ":utf8");
 
@@ -29,6 +32,7 @@ unless( $api->is_status_ok ){
     say Data::Dumper::Dumper([$api]);
     say ref($api);
 }
+
 
 1;
 __END__
