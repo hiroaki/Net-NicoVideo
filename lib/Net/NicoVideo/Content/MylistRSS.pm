@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use utf8;
 use vars qw($VERSION);
-$VERSION = '0.27_01';
+$VERSION = '0.28';
 
 use base qw(Net::NicoVideo::Content Net::NicoVideo::Decorator);
 use XML::FeedPP;

@@ -3,7 +3,7 @@ package Net::NicoVideo;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.27';
+$VERSION = '0.28';
 
 use base qw(Class::Accessor::Fast);
 
@@ -751,13 +751,13 @@ This method is useful for take a "NicoAPI.token" to update Mylist, "item_type" a
 
 =head1 NicoAPI.MylistGroup
 
-The method group of "NicoAPI.MylistGroup" which operates "mylist group".
+The method group of "NicoAPI.MylistGroup" which operates "mylistgroup".
 
 Even if it omits a token, it is taken automatically and used.
 
 =head2 list_mylistgroup()
 
-Get an instance of L<Net::NicoVideo::Content::MylistGroup>.
+List list of "mylistgroup" for user. 
 
 This is equivalent to NicoAPI.MylistGroup#list.
 
@@ -767,25 +767,25 @@ Get an instance of L<Net::NicoVideo::Content::MylistGroup> for specified group_i
 
 This is equivalent to NicoAPI.MylistGroup#get.
 
-=head2 add_mylistgroup(mylist, token)
+=head2 add_mylistgroup(mylistgroup, [token])
 
-Add a "mylist" to "mylist group".
+Add a "mylistgroup" for user.
 
 This is equivalent to NicoAPI.MylistGroup#add
 
-=head2 update_mylistgroup(mylist, token)
+=head2 update_mylistgroup(mylistgroup, [token])
 
-Update a "mylist".
+Update a "mylistgroup".
 
 This is equivalent to NicoAPI.MylistGroup#update
 
-=head2 remove_mylistgroup(mylist, token)
+=head2 remove_mylistgroup(mylistgroup, [token])
 
-Remove a "mylist".
+Remove a "mylistgroup".
 
 This is equivalent to NicoAPI.MylistGroup#remove
 
-=head2 delete_mylistgroup(mylist, token)
+=head2 delete_mylistgroup(mylistgroup, [token])
 
 An alias of remove_mylistgroup().
 
@@ -795,43 +795,43 @@ The method group of "NicoAPI.Mylist" which operates "mylist".
 
 Even if it omits a token, it is taken automatically and used.
 
-=head2 list_mylist(group)
+=head2 list_mylist(group_id)
 
-Get list of "mylist" item for group.
+Get list of "mylist" items for specified group_id.
 
 This is equivalent to NicoAPI.Mylist#list
 
-=head2 add_mylist(group, item, [token])
+=head2 add_mylist(group_id, mylistitem, [token])
 
-Add item to group.
+Add "mylistitem" to "mylistgroup".
 
 This is equivalent to NicoAPI.Mylist#add.
 
-=head2 update_mylist(group, item, [token])
+=head2 update_mylist(group_id, mylistitem, [token])
 
-Update item of group.
+Update "mylistitem" in "mylistgroup".
 
 This is equivalent to NicoAPI.Mylist#update.
 
-=head2 remove_mylist(group, item, [token])
+=head2 remove_mylist(group_id, mylistitem, [token])
 
-Remove item from group.
+Remove "mylistitem" from "mylistgroup".
 
 This is equivalent to NicoAPI.Mylist#remove.
 
-=head2 delete_mylist(group, item, [token])
+=head2 delete_mylist(group_id, mylistitem, [token])
 
 alias of remove_mylist().
 
-=head2 move_mylist(group, target, item, [token])
+=head2 move_mylist(src-group_id, dst-group_id, mylistitem, [token])
 
-Move item from group to target.
+Move "mylistitem" from src "mylistgroup" to dst "mylistgroup".
 
 This is equivalent to NicoAPI.Mylist#move.
 
-=head2 copy_mylist(group, target, item, [token])
+=head2 copy_mylist(src-group_id, dst-group_id, mylistitem, [token])
 
-Copy item from group to target.
+Duplicate "mylistitem" from src "mylistgroup" to dst "mylistgroup".
 
 This is equivalent to NicoAPI.Mylist#copy.
 

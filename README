@@ -215,8 +215,7 @@ Tag
 Mylist RSS
     マイリストの RSS を取得するためのメソッド。
 
-  fetch_mylist_rss(mylist)
-  fetch_mylist_rss(mylist_id)
+  fetch_mylist_rss(mylist | mylist_id)
     引数に指定した mylist または mylist_id のマイリストの RSS を保持するコンテンツ・オブジェクトを返します。
 
     ノート：非公開のマイリストでも、サイトにログインしていることで、それを得る事ができます（？）
@@ -258,29 +257,27 @@ NicoAPI.MylistGroup
 
     これは、 NicoAPI.MylistGroup#list に相当します。
 
-    This is equivalent to NicoAPI.MylistGroup#list.
-
   get_mylistgroup(group_id)
     指定した grpup_id のマイリスト・グループを取得します。
 
     これは、 NicoAPI.MylistGroup#get に相当します。
 
-  add_mylistgroup(mylist, token)
-    ログインしたユーザのマイリスト・グループにマイリストを追加します。
+  add_mylistgroup(mylistgroup, [token])
+    ログインしたユーザにマイリスト・グループを追加します。
 
     これは、 NicoAPI.MylistGroup#add に相当します。
 
-  update_mylistgroup(mylist, token)
-    ログインしたユーザのマイリスト・グループの情報を更新します。
+  update_mylistgroup(mylistgroup, [token])
+    マイリスト・グループの情報を更新します。
 
     これは、 NicoAPI.MylistGroup#update に相当します。
 
-  remove_mylistgroup(mylist, token)
-    指定したマイリストをログインしたユーザのマイリスト・グループから削除します。
+  remove_mylistgroup(mylistgroup, [token])
+    マイリスト・グループを削除します。
 
     これは、 NicoAPI.MylistGroup#remove に相当します。
 
-  delete_mylistgroup(mylist, token)
+  delete_mylistgroup(mylistgroup, [token])
     remove_mylistgroup のエイリアスです。
 
 NicoAPI.Mylist
@@ -292,28 +289,31 @@ NicoAPI.Mylist
     ただしトークン省略しても、それは内部で自動的に取得され、用いられます。 しかしすでにアクセス・トークンを持っている場合は、それを指定する事で、
     アクセス・トークンの取得の為のサイトへのアクセスをなくす事ができます。
 
-  list_mylist(group)
-    group_id のマイリストのアイテム一覧を得ます。 これは、 NicoAPI.Mylist#list に相当します。
+  list_mylist(group_id)
+    group_id のマイリスト・グループのマイリスト一覧を得ます。 これは、 NicoAPI.Mylist#list に相当します。
 
-  add_mylist(group, item, [token])
-    アイテム item をマイリスト mylist に追加します。 これは、 NicoAPI.Mylist#add に相当します。
+  add_mylist(group_id, item, [token])
+    マイリスト・アイテム item を group_id のマイリスト・グループに追加します。 これは、 NicoAPI.Mylist#add
+    に相当します。
 
-  update_mylist(group, item, [token])
-    マイリスト mylist のアイテム item を更新します。 これは、 NicoAPI.Mylist#update に相当します。
+  update_mylist(group_id, item, [token])
+    group_id のマイリスト・グループのマイリスト・アイテム item を更新します。 これは、 NicoAPI.Mylist#update
+    に相当します。
 
-  remove_mylist(group, item, [token])
-    マイリスト mylist のアイテム item を削除します。 これは、 NicoAPI.Mylist#remove に相当します。
+  remove_mylist(group_id, item, [token])
+    group_id のマイリスト・グループのマイリスト・アイテム item を削除します。 これは、 NicoAPI.Mylist#remove
+    に相当します。
 
-  delete_mylist(group, item, [token])
+  delete_mylist(group_id, item, [token])
     remove_mylist のエイリアスです。
 
-  move_mylist(group, target, item, [token])
-    マイリスト mylist のアイテム item をマイリスト target へ移動します。 これは、 NicoAPI.Mylist#move
-    に相当します。
+  move_mylist(src-group_id, dst-group_id, item, [token])
+    マイリスト・グループ src-group_id のマイリスト・アイテム item を マイリスト・グループ dst-group_id
+    へ移動します。 これは、 NicoAPI.Mylist#move に相当します。
 
-  copy_mylist(group, target, item, [token])
-    マイリスト mylist のアイテム item をマイリスト target へコピーします。 これは、 NicoAPI.Mylist#copy
-    に相当します。
+  copy_mylist(src-group_id, dst-group_id, item, [token])
+    マイリスト・グループ src-group_id のマイリスト・アイテム item を マイリスト・グループ dst-group_id
+    へ複製します。 これは、 NicoAPI.Mylist#copy に相当します。
 
 UTILITY METHOD
     その他ユーティリティ。

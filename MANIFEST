@@ -30,11 +30,11 @@ lib/Net/NicoVideo/Response/Video.pm
 lib/Net/NicoVideo/Response/Watch.pm
 lib/Net/NicoVideo/URL.pm
 lib/Net/NicoVideo/UserAgent.pm
+samples/README
 samples/add_mylist.pl
 samples/add_mylist_by_video.pl
 samples/add_mylistgroup.pl
 samples/copy_mylist.pl
-samples/delete_mylistgroup.pl
 samples/fetch_flv.pl
 samples/fetch_mylist_item.pl
 samples/fetch_mylist_page.pl
@@ -50,6 +50,7 @@ samples/list_mylistgroup.pl
 samples/move_mylist.pl
 samples/remove_mylist.pl
 samples/remove_mylist_by_video.pl
+samples/remove_mylistgroup.pl
 samples/update_mylist.pl
 samples/update_mylistgroup.pl
 t/00_compile.t

@@ -3,7 +3,7 @@ package Net::NicoVideo::Content::Flv;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.27_01';
+$VERSION = '0.28';
 
 use base qw(Net::NicoVideo::Content);
 use Carp qw(croak);

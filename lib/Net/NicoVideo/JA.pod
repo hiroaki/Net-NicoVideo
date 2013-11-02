@@ -340,25 +340,25 @@ NicoAPI.MylistGroup のメソッド群。
 
 これは、 NicoAPI.MylistGroup#get に相当します。
 
-=head2 add_mylistgroup(mylist, token)
+=head2 add_mylistgroup(mylistgroup, [token])
 
-ログインしたユーザのマイリスト・グループにマイリストを追加します。
+ログインしたユーザにマイリスト・グループを追加します。
 
 これは、 NicoAPI.MylistGroup#add に相当します。
 
-=head2 update_mylistgroup(mylist, token)
+=head2 update_mylistgroup(mylistgroup, [token])
 
-ログインしたユーザのマイリスト・グループの情報を更新します。
+マイリスト・グループの情報を更新します。
 
 これは、 NicoAPI.MylistGroup#update に相当します。
 
-=head2 remove_mylistgroup(mylist, token)
+=head2 remove_mylistgroup(mylistgroup, [token])
 
-指定したマイリストをログインしたユーザのマイリスト・グループから削除します。
+マイリスト・グループを削除します。
 
 これは、 NicoAPI.MylistGroup#remove に相当します。
 
-=head2 delete_mylistgroup(mylist, token)
+=head2 delete_mylistgroup(mylistgroup, [token])
 
 remove_mylistgroup のエイリアスです。
 
@@ -374,38 +374,40 @@ NicoAPI.Mylist のメソッド群。
 しかしすでにアクセス・トークンを持っている場合は、それを指定する事で、
 アクセス・トークンの取得の為のサイトへのアクセスをなくす事ができます。
 
-=head2 list_mylist(group)
+=head2 list_mylist(group_id)
 
-group_id のマイリストのアイテム一覧を得ます。
+group_id のマイリスト・グループのマイリスト一覧を得ます。
 これは、 NicoAPI.Mylist#list に相当します。
 
-=head2 add_mylist(group, item, [token])
+=head2 add_mylist(group_id, item, [token])
 
-アイテム item をマイリスト mylist に追加します。
+マイリスト・アイテム item を group_id のマイリスト・グループに追加します。
 これは、 NicoAPI.Mylist#add に相当します。
 
-=head2 update_mylist(group, item, [token])
+=head2 update_mylist(group_id, item, [token])
 
-マイリスト mylist のアイテム item を更新します。
+group_id のマイリスト・グループのマイリスト・アイテム item を更新します。
 これは、 NicoAPI.Mylist#update に相当します。
 
-=head2 remove_mylist(group, item, [token])
+=head2 remove_mylist(group_id, item, [token])
 
-マイリスト mylist のアイテム item を削除します。
+group_id のマイリスト・グループのマイリスト・アイテム item を削除します。
 これは、 NicoAPI.Mylist#remove に相当します。
 
-=head2 delete_mylist(group, item, [token])
+=head2 delete_mylist(group_id, item, [token])
 
 remove_mylist のエイリアスです。
 
-=head2 move_mylist(group, target, item, [token])
+=head2 move_mylist(src-group_id, dst-group_id, item, [token])
 
-マイリスト mylist のアイテム item をマイリスト target へ移動します。
+マイリスト・グループ src-group_id のマイリスト・アイテム item を
+マイリスト・グループ dst-group_id へ移動します。
 これは、 NicoAPI.Mylist#move に相当します。
 
-=head2 copy_mylist(group, target, item, [token])
+=head2 copy_mylist(src-group_id, dst-group_id, item, [token])
 
-マイリスト mylist のアイテム item をマイリスト target へコピーします。
+マイリスト・グループ src-group_id のマイリスト・アイテム item を
+マイリスト・グループ dst-group_id へ複製します。
 これは、 NicoAPI.Mylist#copy に相当します。
 
 =head1 UTILITY METHOD

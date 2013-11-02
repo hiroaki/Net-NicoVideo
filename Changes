@@ -1,5 +1,12 @@
 Revision history for Perl extension Net::NicoVideo
 
+0.28 2013-11-04
+  - "GINZA" is supported
+  - Improve Net::NicoVideo::Content, API was changed, but it has no discernible impact on the interface with UA
+  - Deprecete is_content_success and is_content_error on Net::NicoVideo::Response
+  - Improve samples
+  - Improve documents
+
 0.27 2013-08-12
   - Short domain nico.sc is discriminable
   - Improve tests
