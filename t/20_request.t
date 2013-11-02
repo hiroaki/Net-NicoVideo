@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 206;
+use Test::More;
 
 use Net::NicoVideo::Request;
 use URI::Escape;
@@ -509,5 +509,6 @@ ok( $@ );
 
 
 
+done_testing();
 1;
 __END__

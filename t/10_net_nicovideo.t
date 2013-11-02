@@ -1,4 +1,5 @@
 use strict;
+use warnings;
 use Test::More;
 
 use Net::NicoVideo;
@@ -130,14 +131,34 @@ TODO: {
 
 
 #-----------------------------------------------------------
-# Mylist RSS
+# Tag RSS
 # 
 
-# fetch_mylistrss
+# fetch_tag_rss
 TODO: {
     local $TODO = "writing test";
     my $nnv = Net::NicoVideo->new;
-    ok( $nnv->can('fetch_mylistrss'), 'can fetch_mylistrss');
+    ok( $nnv->can('fetch_tag_rss'), 'can fetch_tag_rss');
+};
+
+
+# fetch_tag_rss_by_recent_post
+TODO: {
+    local $TODO = "writing test";
+    my $nnv = Net::NicoVideo->new;
+    ok( $nnv->can('fetch_tag_rss_by_recent_post'), 'can fetch_tag_rss_by_recent_post');
+};
+
+
+#-----------------------------------------------------------
+# Mylist RSS
+# 
+
+# fetch_mylist_rss
+TODO: {
+    local $TODO = "writing test";
+    my $nnv = Net::NicoVideo->new;
+    ok( $nnv->can('fetch_mylist_rss'), 'can fetch_mylist_rss');
 };
 
 
@@ -145,18 +166,18 @@ TODO: {
 # Mylist Base
 # 
 
-# fetch_mylistpage
+# fetch_mylist_page
 TODO: {
     local $TODO = "writing test";
     my $nnv = Net::NicoVideo->new;
-    ok( $nnv->can('fetch_mylistpage'), 'can fetch_mylistpage');
+    ok( $nnv->can('fetch_mylist_page'), 'can fetch_mylist_page');
 };
 
-# fetch_mylistitem
+# fetch_mylist_item
 TODO: {
     local $TODO = "writing test";
     my $nnv = Net::NicoVideo->new;
-    ok( $nnv->can('fetch_mylistitem'), 'can fetch_mylistitem');
+    ok( $nnv->can('fetch_mylist_item'), 'can fetch_mylist_item');
 };
 
 
@@ -164,11 +185,18 @@ TODO: {
 # NicoAPI.MylistGroup
 # 
 
-# fetch_mylistgroup
+# list_mylistgroup
 TODO: {
     local $TODO = "writing test";
     my $nnv = Net::NicoVideo->new;
-    ok( $nnv->can('fetch_mylistgroup'), 'can fetch_mylistgroup');
+    ok( $nnv->can('list_mylistgroup'), 'can list_mylistgroup');
+};
+
+# get_mylistgroup
+TODO: {
+    local $TODO = "writing test";
+    my $nnv = Net::NicoVideo->new;
+    ok( $nnv->can('get_mylistgroup'), 'can get_mylistgroup');
 };
 
 # add_mylistgroup
@@ -197,11 +225,11 @@ TODO: {
 # NicoAPI.Mylist
 # 
 
-# fetch_mylist
+# list_mylist
 TODO: {
     local $TODO = "writing test";
     my $nnv = Net::NicoVideo->new;
-    ok( $nnv->can('fetch_mylist'), 'can fetch_mylist');
+    ok( $nnv->can('list_mylist'), 'can list_mylist');
 };
 
 # add_mylist
@@ -225,6 +253,13 @@ TODO: {
     ok( $nnv->can('remove_mylist'), 'can remove_mylist');
 };
 
+# delete_mylist
+TODO: {
+    local $TODO = "writing test";
+    my $nnv = Net::NicoVideo->new;
+    ok( $nnv->can('delete_mylist'), 'can delete_mylist');
+};
+
 # move_mylist
 TODO: {
     local $TODO = "writing test";
@@ -241,4 +276,5 @@ TODO: {
 
 
 done_testing();
+1;
 __END__

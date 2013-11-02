@@ -37,8 +37,7 @@ is( $item->link, 'http://www.nicovideo.jp/watch/sm17086028', 'item link');
 
 
 done_testing();
-
-
+1;
 __DATA__
 HTTP/1.1 200 OK
 Date: Tue, 06 Mar 2012 15:13:23 GMT
@@ -105,3 +104,4 @@ Content-Language: ja
   </channel>
 
 </rss>
+__END__
