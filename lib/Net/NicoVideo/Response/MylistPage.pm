@@ -3,30 +3,14 @@ package Net::NicoVideo::Response::MylistPage;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_17';
+$VERSION = '0.27_01';
 
-use base qw/Net::NicoVideo::Response/;
+use base qw(Net::NicoVideo::Response);
 use Net::NicoVideo::Content::MylistPage;
-
-sub parse {
-    my $self = shift;
-    $self->{_parsed_content} ||= $self->_component->decoded_content;
-}
 
 sub parsed_content { # implement
     my $self = shift;
-    unless( $self->{_content_object} ){
-
-        my $params = {};
-        my $content = $self->parse;
-
-        if( $content =~ /NicoAPI\.token\s*=\s*"([-\w]+)"/ ){
-            $params->{token} = $1;
-        }
-        
-        $self->{_content_object} = Net::NicoVideo::Content::MylistPage->new($params);
-    }
-    $self->{_content_object};
+    Net::NicoVideo::Content::MylistPage->new($self->_component)->parse;
 }
 
 sub is_content_success { # implement

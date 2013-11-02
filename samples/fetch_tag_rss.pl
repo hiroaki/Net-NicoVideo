@@ -1,19 +1,20 @@
 #!/usr/bin/env perl
 
-use 5.12.0;
+use strict;
 use warnings;
-use Getopt::Std;
+use feature qw/say/;
+
 use Net::NicoVideo;
 use Data::Dumper;
 local $Data::Dumper::Indent = 1;
+use Getopt::Std;
+use Encode::Argv ('utf8');
+
 binmode(STDOUT, ":utf8");
 binmode(STDERR, ":utf8");
 
-my $opts = {};
-do {
-    local $SIG{__WARN__} = sub { die @_ };
-    getopts 'p:', $opts;
-};
+my $opts = { p => 1 };
+getopts 'p:', $opts;
 
 my $keyword = $ARGV[0] or die "usage: $0 [-p page] keyword\n";
 my $page    = $opts->{p};

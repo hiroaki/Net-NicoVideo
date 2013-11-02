@@ -1,7 +1,9 @@
 #!/usr/bin/env perl
 
-use 5.12.0;
+use strict;
 use warnings;
+use feature qw/say/;
+
 use Net::NicoVideo;
 
 binmode(STDOUT, ":utf8");

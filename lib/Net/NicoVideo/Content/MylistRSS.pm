@@ -4,12 +4,19 @@ use strict;
 use warnings;
 use utf8;
 use vars qw($VERSION);
-$VERSION = '0.01_13';
+$VERSION = '0.27_01';
 
-use base qw/Net::NicoVideo::Decorator/;
+use base qw(Net::NicoVideo::Content Net::NicoVideo::Decorator);
+use XML::FeedPP;
 
-sub members {
+sub members { # implement
     ();
+}
+
+sub parse { # implement
+    my $self = shift;
+    $self->load($_[0]) if( defined $_[0] );
+    $self->_component( XML::FeedPP->new($self->_decoded_content) );
 }
 
 sub is_closed {
