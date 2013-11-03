@@ -11,8 +11,9 @@ use Carp qw(croak);
 use LWP::UserAgent;
 use Net::NicoVideo::UserAgent;
 
-use vars qw($DELAY_DEFAULT);
+use vars qw($DELAY_DEFAULT $MSG_LOGIN_FAILED);
 $DELAY_DEFAULT = 1;
+$MSG_LOGIN_FAILED = "Cannot login because specified account information may be invalid";
 
 __PACKAGE__->mk_accessors(qw(
 user_agent
@@ -73,15 +74,16 @@ sub download {
 
 sub fetch_thumbinfo {
     my ($self, $video_id) = @_;
-    my $res = $self->get_user_agent->request_thumbinfo($video_id);
 
+    my $res = $self->get_user_agent->request_thumbinfo($video_id);
     croak "Request 'request_thumbinfo' is error: @{[ $res->status_line ]}"
         if( $res->is_error );
-    
-    croak "Invalid content as 'thumbinfo'"
-        if( $res->is_content_error );
+    my $parsed_content = $res->parsed_content;
 
-    return $res->parsed_content;
+    croak "Invalid content as @{[ ref($parsed_content) ]}"
+        if( $parsed_content->is_error );
+
+    return $parsed_content;
 }
 
 sub fetch_flv {
@@ -93,43 +95,49 @@ sub fetch_flv {
         my $item = $self->fetch_mylist_item($video_id);
         $video_id = $item->item_id;
     }
-    my $res = $ua->request_flv($video_id);
 
+    my $res = $ua->request_flv($video_id);
     croak "Request 'request_flv' is error: @{[ $res->status_line ]}"
         if( $res->is_error );
 
     unless( $res->is_authflagged ){
         # try again
         $res = $self->through_login($ua)->request_flv($video_id);
-        croak "Cannot login because specified account is something wrong"
+        croak "Request 'request_flv' is error: @{[ $res->status_line ]}"
+            if( $res->is_error );
+        croak $MSG_LOGIN_FAILED
             unless( $res->is_authflagged );
     }
 
-    croak "Invalid content as 'flv'"
-        if( $res->is_content_error );
+    my $parsed_content = $res->parsed_content;
+    croak "Invalid content as @{[ ref($parsed_content) ]}"
+        if( $parsed_content->is_error );
 
-    return $res->parsed_content;
+    return $parsed_content;
 }
 
 sub fetch_watch {
     my ($self, $video_id) = @_;
     my $ua  = $self->get_user_agent;
-    my $res = $ua->request_watch($video_id);
 
+    my $res = $ua->request_watch($video_id);
     croak "Request 'request_watch' is error: @{[ $res->status_line ]}"
         if( $res->is_error );
 
     unless( $res->is_authflagged ){
         # try again
         $res = $self->through_login($ua)->request_watch($video_id);
-        croak "Cannot login because specified account is something wrong"
+        croak "Request 'request_watch' is error: @{[ $res->status_line ]}"
+            if( $res->is_error );
+        croak $MSG_LOGIN_FAILED
             unless( $res->is_authflagged );
     }
 
-    croak "Invalid content as 'watch'"
-        if( $res->is_content_error );
+    my $parsed_content = $res->parsed_content;
+    croak "Invalid content as @{[ ref($parsed_content) ]}"
+        if( $parsed_content->is_error );
 
-    return $res->parsed_content;
+    return $parsed_content;
 }
 
 sub fetch_video {
@@ -143,10 +151,11 @@ sub fetch_video {
     croak "Request 'fetch_video' is error: @{[ $res->status_line ]}"
         if( $res->is_error );
 
-    croak "Invalid content as 'video'"
-        if( $res->is_content_error );
+    my $parsed_content = $res->parsed_content;
+    croak "Invalid content as @{[ ref($parsed_content) ]}"
+        if( $parsed_content->is_error );
 
-    return $res->parsed_content;
+    return $parsed_content;
 }
 
 sub fetch_thread {
@@ -160,10 +169,11 @@ sub fetch_thread {
     croak "Request 'fetch_thread' is error: @{[ $res->status_line ]}"
         if( $res->is_error );
 
-    croak "Invalid content as 'thread'"
-        if( $res->is_content_error );
+    my $parsed_content = $res->parsed_content;
+    croak "Invalid content as @{[ ref($parsed_content) ]}"
+        if( $parsed_content->is_error );
 
-    return $res->parsed_content;
+    return $parsed_content;
 }
 
 #-----------------------------------------------------------
@@ -173,15 +183,16 @@ sub fetch_thread {
 sub fetch_tag_rss {
     my ($self, $keyword, $params) = @_;
     my $ua  = $self->get_user_agent;
-    my $res = $ua->request_tag_rss($keyword, $params);
 
+    my $res = $ua->request_tag_rss($keyword, $params);
     croak "Request 'request_tag_rss' is error: @{[ $res->status_line ]}"
         if( $res->is_error );
 
-    croak "Invalid content as 'tag'"
-        if( $res->is_content_error );
+    my $parsed_content = $res->parsed_content;
+    croak "Invalid content as @{[ ref($parsed_content) ]}"
+        if( $parsed_content->is_error );
 
-    return $res->parsed_content;
+    return $parsed_content;
 }
 
 sub fetch_tag_rss_by_recent_post { # shortcut
@@ -197,25 +208,29 @@ sub fetch_tag_rss_by_recent_post { # shortcut
 sub fetch_mylist_rss {
     my ($self, $mylist) = @_;
     my $ua  = $self->get_user_agent;
-    my $res = $ua->request_mylist_rss($mylist);
 
+    my $res = $ua->request_mylist_rss($mylist);
     croak "Request 'request_mylist_rss' is error: @{[ $res->status_line ]}"
         if( $res->is_error and $res->code ne '403' );
-
-    if( ( ! $res->is_authflagged or $res->is_closed ) 
+    my $parsed_content = $res->parsed_content;
+    
+    if( ( ! $res->is_authflagged or $parsed_content->is_closed ) 
      and defined $self->get_email
      and defined $self->get_password
     ){
         # try again
         $res = $self->through_login($ua)->request_mylist_rss($mylist);
-        croak "Cannot login because specified account is something wrong"
+        croak "Request 'request_mylist_rss' is error: @{[ $res->status_line ]}"
+            if( $res->is_error and $res->code ne '403' );
+        croak $MSG_LOGIN_FAILED
             unless( $res->is_authflagged );
+        $parsed_content = $res->parsed_content;
     }
 
-    croak "Invalid content as 'mylist'"
+    croak "Invalid content as @{[ ref($parsed_content) ]}"
         if( $res->is_content_error );
 
-    return $res->parsed_content;
+    return $parsed_content;
 }
 
 #-----------------------------------------------------------
@@ -226,44 +241,48 @@ sub fetch_mylist_rss {
 sub fetch_mylist_page {
     my ($self) = @_;
     my $ua  = $self->get_user_agent;
-    my $res = $ua->request_mylist_page;
 
+    my $res = $ua->request_mylist_page;
     croak "Request 'request_mylist_page' is error: @{[ $res->status_line ]}"
         if( $res->is_error );
 
     unless( $res->is_authflagged ){
         # try again
         $res = $self->through_login($ua)->request_mylist_page;
-        croak "Cannot login because specified account is something wrong"
+        croak $MSG_LOGIN_FAILED
             unless( $res->is_authflagged );
     }
 
-    croak "Invalid content as 'mylist_page'"
-        if( $res->is_content_error );
+    my $parsed_content = $res->parsed_content;
+    croak "Invalid content as @{[ ref($parsed_content) ]}"
+        if( $parsed_content->is_error );
 
-    return $res->parsed_content;
+    return $parsed_content;
 }
 
 # taking NicoAPI.token to update Mylist, item_type and item_id for video_id
 sub fetch_mylist_item {
     my ($self, $video_id) = @_;
     my $ua  = $self->get_user_agent;
-    my $res = $ua->request_mylist_item($video_id);
 
+    my $res = $ua->request_mylist_item($video_id);
     croak "Request 'request_mylist_item' is error: @{[ $res->status_line ]}"
         if( $res->is_error );
 
     unless( $res->is_authflagged ){
         # try again
         $res = $self->through_login($ua)->request_mylist_item($video_id);
-        croak "Cannot login because specified account is something wrong"
+        croak "Request 'request_mylist_item' is error: @{[ $res->status_line ]}"
+            if( $res->is_error );
+        croak $MSG_LOGIN_FAILED
             unless( $res->is_authflagged );
     }
 
-    croak "Invalid content as 'mylist_item'"
-        if( $res->is_content_error );
+    my $parsed_content = $res->parsed_content;
+    croak "Invalid content as @{[ ref($parsed_content) ]}"
+        if( $parsed_content->is_error );
 
-    return $res->parsed_content;
+    return $parsed_content;
 }
 
 #-----------------------------------------------------------
@@ -274,50 +293,56 @@ sub fetch_mylist_item {
 sub list_mylistgroup {
     my ($self) = @_;
     my $ua  = $self->get_user_agent;
+    
     my $res = $ua->request_mylistgroup_list;
-
     croak "Request 'request_mylistgroup_list' is error: @{[ $res->status_line ]}"
         if( $res->is_error );
 
-    unless( $res->is_content_success ){
-        if( $res->is_error_noauth ){
+    my $parsed_content = $res->parsed_content;
+
+    unless( $parsed_content->is_success ){
+        if( $parsed_content->is_error_noauth ){
             # try again
             $res = $self->through_login($ua)->request_mylistgroup_list;
-            unless( $res->is_content_success ){
-                if( $res->is_error_noauth ){
-                    croak "Cannot login because specified account is something wrong";
-                }
-                croak "Invalid content as 'mylistgroup'";
+            croak "Request 'request_mylistgroup_list' is error: @{[ $res->status_line ]}"
+                if( $res->is_error );
+            $parsed_content = $res->parsed_content;
+            unless( $parsed_content->is_success ){
+                croak $MSG_LOGIN_FAILED if( $parsed_content->is_error_noauth );
+                croak "Invalid content as @{[ ref($parsed_content) ]}";
             }
         }
     }
-    
-    return $res->parsed_content;
+
+    return $parsed_content;
 }
 
 # NicoAPI.MylistGroup #get
 sub get_mylistgroup {
     my ($self, $group_id) = @_;
     my $ua  = $self->get_user_agent;
-    my $res = $ua->request_mylistgroup_get($group_id);
 
+    my $res = $ua->request_mylistgroup_get($group_id);
     croak "Request 'request_mylistgroup_get' is error: @{[ $res->status_line ]}"
         if( $res->is_error );
 
-    unless( $res->is_content_success ){
-        if( $res->is_error_noauth ){
+    my $parsed_content = $res->parsed_content;
+    
+    unless( $parsed_content->is_success ){
+        if( $parsed_content->is_error_noauth ){
             # try again
             $res = $self->through_login($ua)->request_mylistgroup_get($group_id);
-            unless( $res->is_content_success ){
-                if( $res->is_error_noauth ){
-                    croak "Cannot login because specified account is something wrong";
-                }
-                croak "Invalid content as 'mylistgroup'";
+            croak "Request 'request_mylistgroup_get' is error: @{[ $res->status_line ]}"
+                if( $res->is_error );
+            $parsed_content = $res->parsed_content;
+            unless( $parsed_content->is_success ){
+                croak $MSG_LOGIN_FAILED if( $parsed_content->is_error_noauth );
+                croak "Invalid content as @{[ ref($parsed_content) ]}";
             }
         }
     }
-    
-    return $res->parsed_content;
+
+    return $parsed_content;
 }
 
 # NicoAPI.MylistGroup #add
@@ -366,26 +391,29 @@ sub remove_mylistgroup {
 sub list_mylist {
     my ($self, $group) = @_; # mylistgroup or group_id
     my $ua  = $self->get_user_agent;
-    my $res = $ua->request_mylist_list($group);
 
+    my $res = $ua->request_mylist_list($group);
     croak "Request 'request_mylist_list' is error: @{[ $res->status_line ]}"
         if( $res->is_error );
-
-    unless( $res->is_content_success ){
-        if( $res->is_error_noauth ){
+    my $parsed_content = $res->parsed_content;
+    
+    unless( $parsed_content->is_success ){
+        if( $parsed_content->is_error_noauth ){
             # try again
             $res = $self->through_login($ua)->request_mylist_list($group);
-            unless( $res->is_content_success ){
-                if( $res->is_error_noauth ){
-                    croak "Cannot login because specified account is something wrong";
-                }
-                croak "Invalid content as 'mylistgroup'";
+            croak "Request 'request_mylist_list' is error: @{[ $res->status_line ]}"
+                if( $res->is_error );
+            $parsed_content = $res->parsed_content;
+            
+            unless( $parsed_content->is_success ){
+                croak $MSG_LOGIN_FAILED if( $parsed_content->is_error_noauth );
+                croak "Invalid content as @{[ ref($parsed_content) ]}";
             }
         }
     }
 
     # it returns Net::NicoVideo::Content::NicoAPI::MylistItem
-    return $res->parsed_content;
+    return $parsed_content;
 }
 
 # NicoAPI.Mylist #add

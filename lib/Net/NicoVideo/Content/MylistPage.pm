@@ -27,9 +27,17 @@ sub parse { # implement
     if( $content =~ /NicoAPI\.token\s*=\s*"([-\w]+)"/ ){
         $self->token( $1 );
     }
+
+    # status
+    if( $self->token ){
+        $self->set_status_success;
+    }else{
+        $self->set_status_error;
+    }
     
     return $self;
 }
+
 
 1;
 __END__

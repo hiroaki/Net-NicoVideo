@@ -61,8 +61,16 @@ sub parse { # implement
     $self->item_id( $item_id );
     $self->description( $description );
 
+    # status
+    if( defined $self->item_id and defined $self->item_type ){
+        $self->set_status_success;
+    }else{
+        $self->set_status_error;
+    }
+    
     return $self;
 }
+
 
 1;
 __END__

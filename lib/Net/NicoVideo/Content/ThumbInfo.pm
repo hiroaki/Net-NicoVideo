@@ -33,17 +33,10 @@ user_id
 
 __PACKAGE__->mk_accessors(@Members);
 
-sub _status {
-    my $self = shift;
-    return @_ ? $self->{_status} = shift : $self->{_status};
-}
 
-sub is_success {
-    $_[0]->_status;
-}
-
+# DEPRECATED
 sub is_failure {
-    not $_[0]->is_success;
+    $_[0]->is_error;
 }
 
 sub members { # implement
@@ -66,10 +59,17 @@ sub parse { # implement
             if( $self->can($name) );
     }
 
+    # status
     my $status = $params->{'-status'} || '';
-    $self->_status( lc($status) eq 'ok' ? 1 : 0 );
+    if( lc($status) eq 'ok' ){
+        $self->set_status_success;
+    }else{
+        $self->set_status_error;
+    }
     
     return $self;
 }
 
+
 1;
+__END__

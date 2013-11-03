@@ -14,20 +14,6 @@ sub parsed_content { # implement
     Net::NicoVideo::Content::Thread->new($self->_component)->parse;
 }
 
-# TODO
-sub is_content_success { # implement
-    my $self = shift;
-    my $c = $self->parsed_content;
-    if( defined $c->resultcode ){
-        return 1;
-    }else{
-        return 0;
-    }
-}
-
-sub is_content_error { # implement
-    not shift->is_content_success;
-}
 
 1;
 __END__

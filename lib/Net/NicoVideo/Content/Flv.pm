@@ -46,6 +46,15 @@ sub parse { # implement
         $self->$name( $cgi->param($name) )
             if( $self->can($name) );
     }
+
+    # status
+    my $url = $self->url;
+    if( defined $url and $url =~ /nicovideo\.jp/ ){
+        $self->set_status_success;
+    }else{
+        $self->set_status_error;
+    }
+
     return $self;
 }
 
@@ -55,4 +64,6 @@ sub is_economy {
     return $url =~ /low$/ ? 1 : 0;
 }
 
+
 1;
+__END__

@@ -17,6 +17,15 @@ sub parse { # implement
     my $self = shift;
     $self->load($_[0]) if( defined $_[0] );
     $self->_component( XML::FeedPP->new($self->_decoded_content) );
+
+    # status
+    if( ref($self->_component) and $self->_component->isa('XML::FeedPP') ){
+        $self->set_status_success;
+    }else{
+        $self->set_status_error;
+    }
+
+    return $self;
 }
 
 1;

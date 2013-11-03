@@ -114,6 +114,13 @@ sub parse { # implement
     $self->view_counter($vc                 );
     $self->chats(       \@chats             );
     
+    # status
+    if( defined $self->resultcode ){
+        $self->set_status_success;
+    }else{
+        $self->set_status_error;
+    }
+    
     return $self;
 }
 

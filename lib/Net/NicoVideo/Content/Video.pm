@@ -1,5 +1,3 @@
-# TODO
-
 package Net::NicoVideo::Content::Video;
 
 use strict;
@@ -21,13 +19,23 @@ sub members { # implement
     @copy;
 }
 
-# TODO - temporary it returning
 sub parse { # implement
     my $self = shift;
     $self->load($_[0]) if( defined $_[0] );
 
+    # TODO - temporary return
     $self->content_ref( $self->_decoded_content );
-    return $self;
+ 
+    # status TODO - the judgement is detected by response header
+    if( $self ){
+        $self->set_status_success;
+    }else{
+        $self->set_status_error;
+    }
+
+   return $self;
 }
 
+
 1;
+__END__

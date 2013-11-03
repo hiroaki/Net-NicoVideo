@@ -15,6 +15,7 @@ sub new {
 
     my $self = {
         _decoded_content => undef,
+        _status => undef,
     };
 
     bless $self, $class;
@@ -27,6 +28,19 @@ sub new {
 sub _decoded_content {
     my $self = shift;
     return @_ ? $self->{_decoded_content} = shift : $self->{_decoded_content};
+}
+
+sub _status {
+    my $self = shift;
+    return @_ ? $self->{_status} = shift : $self->{_status};
+}
+
+sub set_status_success {
+    $_[0]->_status(1);
+}
+
+sub set_status_error {
+    $_[0]->_status(0);
 }
 
 sub load {
@@ -54,8 +68,27 @@ sub parse { # interface
     my $self = shift;
     $self->load($_[0]) if( defined $_[0] );
 
+    # here! parse contents and set _status to success or error
+
     return $self;
 }
+
+sub is_success {
+    my $self = shift;
+    unless( defined $self->_status ){
+        die "content is not parsed as @{[ ref($self) ]} yet";
+    }
+    return $self->_status ? 1 : 0;
+}
+
+sub is_error {
+    my $self = shift;
+    unless( defined $self->_status ){
+        die "content is not parsed as @{[ ref($self) ]} yet";
+    }
+    return $self->_status ? 0 : 1;
+}
+
 
 1;
 __END__

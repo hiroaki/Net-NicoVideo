@@ -16,18 +16,21 @@ sub is_authflagged {
 # before calling this
 sub parsed_content { # abstract
     my $self = shift;
-    Net::NicoVideo::Content->new($self->_component);
+    Net::NicoVideo::Content->new($self->_component)->parse;
 }
 
+# DEPRECATED - use Net::NicoVideo::Content#is_success instead
 sub is_content_success { # abstract
     my $self = shift;
-    $self->_component->is_success;
+    $self->parsed_content->is_success;
 }
 
+# DEPRECATED - use Net::NicoVideo::Content#is_error instead
 sub is_content_error { # abstract
     my $self = shift;
-    $self->_component->is_error;
+    $self->parsed_content->is_error;
 }
+
 
 1;
 __END__

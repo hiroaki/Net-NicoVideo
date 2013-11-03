@@ -13,12 +13,6 @@ sub parsed_content { # implement
     Net::NicoVideo::Content::ThumbInfo->new($self->_component)->parse;
 }
 
-sub is_content_success { # implement
-    $_[0]->parsed_content->is_success;
-}
-
-sub is_content_error { # implement
-    $_[0]->parsed_content->is_failure;
-}
 
 1;
+__END__

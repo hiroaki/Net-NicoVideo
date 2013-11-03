@@ -66,12 +66,19 @@ sub parse { # implement
         $self->mylistitem(\@mi);
     }
 
+    # status
+    if( $self->is_status_ok ){
+        $self->set_status_success;
+    }else{
+        $self->set_status_error;
+    }
+    
     return $self;
 }
 
 sub is_status_ok {
     my $self = shift;
-    $self->status and $self->status eq 'ok';
+    $self->status and lc($self->status) eq 'ok';
 }
 
 sub error_code {
@@ -86,7 +93,7 @@ sub error_description {
 
 sub is_error_noauth {
     my $self = shift;
-    $self->error and $self->error->code and $self->error->code eq 'NOAUTH';
+    $self->error and $self->error->code and uc($self->error->code) eq 'NOAUTH';
 }
 
 
@@ -95,7 +102,7 @@ package Net::NicoVideo::Content::NicoAPI::Error;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.27_01';
+$VERSION = '0.28';
 
 use base qw(Class::Accessor::Fast);
 use vars qw(@Members);
@@ -116,7 +123,7 @@ package Net::NicoVideo::Content::NicoAPI::MylistGroup;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.27_01';
+$VERSION = '0.28';
 
 use base qw(Class::Accessor::Fast);
 use vars qw(@Members);
@@ -145,7 +152,7 @@ package Net::NicoVideo::Content::NicoAPI::MylistItem;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.27_01';
+$VERSION = '0.28';
 
 use base qw(Class::Accessor::Fast);
 use vars qw(@Members);
@@ -171,7 +178,7 @@ package Net::NicoVideo::Content::NicoAPI::MylistItem::ItemData;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.27_01';
+$VERSION = '0.28';
 
 use base qw(Class::Accessor::Fast);
 use vars qw(@Members);
