@@ -53,7 +53,7 @@ use warnings;
 use vars qw($VERSION);
 $VERSION = '0.27_01';
 
-use base qw(Net::NicoVideo::Content);
+use base qw(Net::NicoVideo::Content Class::Accessor::Fast);
 use XML::TreePP;
 
 use vars qw(@Members);

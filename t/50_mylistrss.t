@@ -104,4 +104,3 @@ Content-Language: ja
   </channel>
 
 </rss>
-__END__

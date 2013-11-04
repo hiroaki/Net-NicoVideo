@@ -3,8 +3,10 @@ package Net::NicoVideo::UserAgent;
 use strict;
 use warnings;
 use vars qw($VERSION);
-$VERSION = '0.01_26';
+$VERSION = '0.28';
 
+# NOTE: Never inherit with classes that have "get()" or "set()",
+# because these interfere with _component which is decorated with Net::NicoVideo::Decorator
 use base qw(Net::NicoVideo::Decorator);
 
 use HTTP::Cookies;
@@ -13,6 +15,7 @@ use Net::NicoVideo::Request;
 use Net::NicoVideo::Response;
 
 our $MOD_MYLISTGROUP = 'Net::NicoVideo::Content::NicoAPI::MylistGroup';
+our $MOD_FLV         = 'Net::NicoVideo::Content::Flv';
 
 sub new {
     my ($class, $component, @opts) = @_;
@@ -70,7 +73,7 @@ sub request_watch {
 
 sub request_video {
     my ($self, $flv, @args) = @_;
-    my $url = (ref($flv) and $flv->isa('Net::NicoVideo::Content::Flv')) ? $flv->url : $flv;
+    my $url = (ref($flv) and $flv->isa($MOD_FLV)) ? $flv->url : $flv;
     require Net::NicoVideo::Response::Video;
     Net::NicoVideo::Response::Video->new(
         $self->request(Net::NicoVideo::Request->get($url), @args));

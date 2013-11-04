@@ -5,7 +5,9 @@ use warnings;
 use vars qw($VERSION);
 $VERSION = '0.28';
 
-use base qw/Net::NicoVideo::Decorator/;
+# NOTE: Never inherit with classes that have "get()" or "set()",
+# because these interfere with _component which is decorated with Net::NicoVideo::Decorator
+use base qw(Net::NicoVideo::Decorator);
 
 sub is_authflagged {
     my $self = shift;

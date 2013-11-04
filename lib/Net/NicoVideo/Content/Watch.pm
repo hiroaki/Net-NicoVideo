@@ -1,5 +1,3 @@
-# TODO
-
 package Net::NicoVideo::Content::Watch;
 
 use strict;
@@ -7,7 +5,7 @@ use warnings;
 use vars qw($VERSION);
 $VERSION = '0.28';
 
-use base qw(Net::NicoVideo::Content);
+use base qw(Net::NicoVideo::Content Class::Accessor::Fast);
 use Carp qw(croak);
 
 use vars qw(@Members);

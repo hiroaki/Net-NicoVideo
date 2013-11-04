@@ -5,7 +5,7 @@ use warnings;
 use vars qw($VERSION);
 $VERSION = '0.28';
 
-use base qw(Net::NicoVideo::Content);
+use base qw(Net::NicoVideo::Content Class::Accessor::Fast);
 
 use vars qw(@Members);
 @Members = qw(

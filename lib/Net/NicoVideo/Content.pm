@@ -5,8 +5,6 @@ use warnings;
 use vars qw($VERSION);
 $VERSION = '0.28';
 
-use base qw(Class::Accessor::Fast);
-
 sub new {
     my $class = shift;
     $class = ref $class || $class;

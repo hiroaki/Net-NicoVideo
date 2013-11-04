@@ -6,6 +6,8 @@ use utf8;
 use vars qw($VERSION);
 $VERSION = '0.28';
 
+# NOTE: Never inherit with classes that have "get()" or "set()", like Class::Accessor::Fast,
+# because these interfere with _component which is decorated with Net::NicoVideo::Decorator, like XML::FeedPP.
 use base qw(Net::NicoVideo::Content Net::NicoVideo::Decorator);
 use XML::FeedPP;
 
