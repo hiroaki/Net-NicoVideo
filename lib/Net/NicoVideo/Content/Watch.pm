@@ -28,7 +28,7 @@ sub parse { # implement
     $self->decoded_content( $self->_decoded_content );
 
     # status
-    if( $self->_decoded_content =~ m{\bhttps://secure.nicovideo.jp/secure/logout\b} ){
+    if( $self->_decoded_content =~ m{\buser\.login_status\s*=\s*'login'} ){
         # when user is logging in, "watch" page produces full contents
         $self->set_status_success;
     }else{
